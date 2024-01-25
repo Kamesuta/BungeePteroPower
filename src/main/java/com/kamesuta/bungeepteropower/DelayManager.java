@@ -24,9 +24,9 @@ public class DelayManager {
      * Stop the server after a while.
      *
      * @param serverName   The name of the server to stop
-     * @param autoStopTime The time in seconds to stop the server
+     * @param timeout The time in seconds to stop the server
      */
-    public void stopAfterWhile(String serverName, int autoStopTime) {
+    public void stopAfterWhile(String serverName, int timeout) {
         // Get the Pterodactyl server ID
         String pterodactylServerId = plugin.config.getServerId(serverName);
         if (pterodactylServerId == null) {
@@ -48,7 +48,7 @@ public class DelayManager {
             // Unregister the task
             serverStopTasks.remove(serverName);
 
-        }, autoStopTime, TimeUnit.SECONDS);
+        }, timeout, TimeUnit.SECONDS);
         taskId.set(task.getId());
 
         // Log

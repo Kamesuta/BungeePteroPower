@@ -77,12 +77,12 @@ public class PteroCommand extends Command implements TabExecutor {
                     sender.sendMessage(plugin.messages.success("server_" + subCommand, serverName));
 
                     // Get the auto stop time
-                    Integer autoStopTime = plugin.config.getAutoStopTime(serverName);
-                    if (autoStopTime != null && autoStopTime >= 0) {
+                    Integer serverTimeout = plugin.config.getServerTimeout(serverName);
+                    if (serverTimeout != null && serverTimeout >= 0) {
                         // Stop the server after a while
-                        plugin.delay.stopAfterWhile(serverName, autoStopTime);
+                        plugin.delay.stopAfterWhile(serverName, serverTimeout);
                         // Send message
-                        sender.sendMessage(plugin.messages.warning("join_autostart_warning", serverName, autoStopTime));
+                        sender.sendMessage(plugin.messages.warning("join_autostart_warning", serverName, serverTimeout));
                     }
 
                 }).exceptionally(e -> {

@@ -130,12 +130,12 @@ public final class BungeePteroPower extends Plugin implements Listener {
                         player.sendMessage(plugin.messages.success("join_autostart", serverName));
 
                         // Get the auto stop time
-                        Integer autoStopTime = config.getAutoStopTime(serverName);
-                        if (autoStopTime != null && autoStopTime >= 0) {
+                        Integer serverTimeout = config.getServerTimeout(serverName);
+                        if (serverTimeout != null && serverTimeout >= 0 && config.startTimeout >= 0) {
                             // Stop the server after a while when no one enters the server
-                            delay.stopAfterWhile(serverName, config.noPlayerTimeoutTime + autoStopTime);
+                            delay.stopAfterWhile(serverName, config.startTimeout + serverTimeout);
                             // Send message
-                            player.sendMessage(messages.info("join_autostart_warning", serverName, config.noPlayerTimeoutTime + autoStopTime));
+                            player.sendMessage(messages.info("join_autostart_warning", serverName, config.startTimeout + serverTimeout));
                         }
 
                     }).exceptionally(e -> {
@@ -194,12 +194,12 @@ public final class BungeePteroPower extends Plugin implements Listener {
         }
 
         // Get the auto stop time
-        Integer autoStopTime = config.getAutoStopTime(targetServer.getName());
-        if (autoStopTime != null && autoStopTime >= 0) {
+        Integer serverTimeout = config.getServerTimeout(targetServer.getName());
+        if (serverTimeout != null && serverTimeout >= 0) {
             // Stop the server after a while
-            delay.stopAfterWhile(targetServer.getName(), autoStopTime);
+            delay.stopAfterWhile(targetServer.getName(), serverTimeout);
             // Send message
-            player.sendMessage(messages.info("leave_server_stopping", targetServer.getName(), autoStopTime));
+            player.sendMessage(messages.info("leave_server_stopping", targetServer.getName(), serverTimeout));
         }
     }
 }

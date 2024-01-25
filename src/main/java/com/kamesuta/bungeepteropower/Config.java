@@ -26,9 +26,9 @@ public class Config {
     public final String language;
     /**
      * When no one enters the server after starting the server,
-     * the server will be stopped after this time has elapsed according to the autostop setting.
+     * the server will be stopped after this time has elapsed according to the timeout setting.
      */
-    public final int noPlayerTimeoutTime;
+    public final int startTimeout;
     /**
      * Pterodactyl API URL
      */
@@ -44,7 +44,7 @@ public class Config {
     /**
      * The time in seconds to stop the server after the last player leaves.
      */
-    private final Map<String, Integer> serverAutoStopMap;
+    private final Map<String, Integer> serverTimeoutMap;
 
     public Config() {
         // Create/Load config.yml
@@ -62,7 +62,7 @@ public class Config {
         try {
             // Basic settings
             this.language = configuration.getString("language");
-            this.noPlayerTimeoutTime = configuration.getInt("noPlayerTimeoutTime");
+            this.startTimeout = configuration.getInt("startTimeout");
 
             // Pterodactyl API credentials
             this.pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
@@ -70,12 +70,12 @@ public class Config {
 
             // Bungeecord server name -> Pterodactyl server ID list
             serverIdMap = new HashMap<>();
-            serverAutoStopMap = new HashMap<>();
+            serverTimeoutMap = new HashMap<>();
             Configuration servers = configuration.getSection("servers");
             for (String serverId : servers.getKeys()) {
                 Configuration section = servers.getSection(serverId);
                 serverIdMap.put(serverId, section.getString("id"));
-                serverAutoStopMap.put(serverId, section.getInt("autostop"));
+                serverTimeoutMap.put(serverId, section.getInt("timeout"));
             }
 
         } catch (Exception e) {
@@ -100,8 +100,8 @@ public class Config {
      * @param serverName The Bungeecord server name
      * @return The auto stop time
      */
-    public @Nullable Integer getAutoStopTime(String serverName) {
-        return serverAutoStopMap.get(serverName);
+    public @Nullable Integer getServerTimeout(String serverName) {
+        return serverTimeoutMap.get(serverName);
     }
 
     private static File makeConfig() throws IOException {

@@ -9,8 +9,8 @@
 language: en
 
 # When no one enters the server after starting the server,
-# the server will be stopped after this time has elapsed according to the autostop setting.
-noPlayerTimeoutTime: 120
+# the server will be stopped after this time has elapsed according to the timeout setting.
+startTimeout: 120
 
 # Pterodactyl configuration
 pterodactyl:
@@ -31,8 +31,8 @@ servers:
     # The time in seconds to stop the server after the last player leaves.
     # If you don't want to stop the server automatically, set it to -1.
     # If you set it to 0, the server will be stopped immediately after the last player leaves.
-    autostop: 30
+    timeout: 30
 
   hub:
     id: abcd1234
-    autostop: -1
+    timeout: -1
