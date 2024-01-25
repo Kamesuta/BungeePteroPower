@@ -23,8 +23,8 @@ public class DelayManager {
     /**
      * Stop the server after a while.
      *
-     * @param serverName   The name of the server to stop
-     * @param timeout The time in seconds to stop the server
+     * @param serverName The name of the server to stop
+     * @param timeout    The time in seconds to stop the server
      */
     public void stopAfterWhile(String serverName, int timeout) {
         // Get the Pterodactyl server ID
@@ -40,7 +40,7 @@ public class DelayManager {
         AtomicInteger taskId = new AtomicInteger();
         ScheduledTask task = ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
             // Log
-            logger.info(String.format("Scheduled task executed: stop server %s (task ID: %d)", serverName, taskId.get()));
+            logger.info(String.format("Scheduled task executed: stop server %s (task ID: %d, timeout: %d sec)", serverName, taskId.get(), timeout));
 
             // Stop the target server
             PterodactylAPI.sendPowerSignal(serverName, pterodactylServerId, PterodactylAPI.PowerSignal.STOP);
@@ -52,7 +52,7 @@ public class DelayManager {
         taskId.set(task.getId());
 
         // Log
-        logger.info(String.format("Scheduled task registered: stop server %s (task ID: %d)", serverName, task.getId()));
+        logger.info(String.format("Scheduled task registered: stop server %s (task ID: %d, timeout: %d sec)", serverName, taskId.get(), timeout));
 
         // Register the task
         serverStopTasks.put(serverName, task);
