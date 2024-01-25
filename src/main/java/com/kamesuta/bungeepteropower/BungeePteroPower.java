@@ -112,7 +112,10 @@ public final class BungeePteroPower extends Plugin implements Listener {
         // Call permission check for the all servers to register the permission to LuckPerms
         for (ServerInfo server : instance.getServers().values()) {
             player.hasPermission("ptero.autostart." + server.getName());
+            player.hasPermission("ptero.start." + server.getName());
+            player.hasPermission("ptero.stop." + server.getName());
         }
+        player.hasPermission("ptero.reload");
     }
 
     @EventHandler
