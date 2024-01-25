@@ -1,0 +1,21 @@
+###########################################################
+#                    BungeePteroPower                     #
+#                       by Kamesuta                       #
+###########################################################
+
+# Pterodactyl configuration
+pterodactyl:
+  # The URL of your pterodactyl panel
+  # If you use Cloudflare Tunnel, you need to allow the ip in the bypass setting.
+  url: "https://panel.example.com"
+  # The client api key of your pterodactyl panel. It starts with "ptlc_".
+  # You can find the client api key in the "API Credentials" tab of the "Account" page.
+  token: "<your pterodactyl panel api token>"
+
+# Per server configuration
+servers:
+  # Bungeecord Server name -> Pterodactyl server ID
+  # You can find the Pterodactyl server ID in the URL of the server page.
+  # For example, if the URL is https://panel.example.com/server/1234abcd, the server ID is 1234abcd.
+  hub: 1234abcd
+  pvp: abcd1234

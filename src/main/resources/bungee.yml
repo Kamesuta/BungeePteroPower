@@ -1,0 +1,5 @@
+name: BungeePteroPower
+version: '${project.version}'
+main: com.kamesuta.bungeepteropower.BungeePteroPower
+author: Kamesuta
+description: This plugin allows you to start and stop servers on Pterodactyl panel by using its API when players join or leave the Bungeecord proxy server. This plugin helps you save resources and manage your servers more efficiently.
