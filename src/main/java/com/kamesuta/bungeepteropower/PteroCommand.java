@@ -45,7 +45,7 @@ public class PteroCommand extends Command implements TabExecutor {
                 }
 
                 // Reload config.yml
-                plugin.loadConfig();
+                plugin.config = PteroConfig.loadConfig();
                 sender.sendMessage(new ComponentBuilder(Prefix + "Configuration reloaded.").color(ChatColor.GREEN).create());
 
                 break;
@@ -66,7 +66,7 @@ public class PteroCommand extends Command implements TabExecutor {
                 }
 
                 // Stop server
-                String serverId = plugin.pterodactyl.getServerId(serverName);
+                String serverId = plugin.config.getServerId(serverName);
                 if (serverId == null) {
                     sender.sendMessage(new ComponentBuilder(Prefix + "Server " + serverName + " is not configured.").color(ChatColor.RED).create());
                     return;
@@ -79,7 +79,7 @@ public class PteroCommand extends Command implements TabExecutor {
                 String doing = subCommand.equals("start") ? "starting" : "stopping";
 
                 // Send signal
-                plugin.pterodactyl.sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
+                plugin.config.pterodactyl.sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
                     sender.sendMessage(new ComponentBuilder(String.format(Prefix + "Server %s is %s", serverName, doing)).color(ChatColor.GREEN).create());
                 }).exceptionally(e -> {
                     sender.sendMessage(new ComponentBuilder(String.format(Prefix + "Failed to %s server %s", doing, serverName)).color(ChatColor.RED).create());
@@ -125,7 +125,7 @@ public class PteroCommand extends Command implements TabExecutor {
                         .map(ServerInfo::getName)
                         .filter(name -> name.startsWith(args[1]))
                         .filter(name -> sender.hasPermission("ptero." + subCommand + "." + name))
-                        .filter(name -> plugin.pterodactyl.getServerId(name) != null)
+                        .filter(name -> plugin.config.getServerId(name) != null)
                         .collect(Collectors.toList());
             }
 

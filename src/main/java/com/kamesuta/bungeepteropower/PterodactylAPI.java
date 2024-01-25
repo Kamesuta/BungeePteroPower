@@ -18,28 +18,16 @@ import static com.kamesuta.bungeepteropower.BungeePteroPower.logger;
 public class PterodactylAPI {
     private final URI pterodactylUrl;
     private final String pterodactylToken;
-    private final Map<String, String> serverIdMap;
 
     /**
      * Create a new Pterodactyl API client.
      *
      * @param pterodactylUrl   The Pterodactyl server url
      * @param pterodactylToken The Pterodactyl API token
-     * @param serverIdMap     The map of Bungeecord server name to Pterodactyl server ID
      */
     public PterodactylAPI(URI pterodactylUrl, String pterodactylToken, Map<String, String> serverIdMap) {
         this.pterodactylUrl = pterodactylUrl;
         this.pterodactylToken = pterodactylToken;
-        this.serverIdMap = serverIdMap;
-    }
-
-    /**
-     * Get the Pterodactyl server ID from the Bungeecord server name.
-     * @param serverName The Bungeecord server name
-     * @return The Pterodactyl server ID
-     */
-    public @Nullable String getServerId(String serverName) {
-        return serverIdMap.get(serverName);
     }
 
     /**
