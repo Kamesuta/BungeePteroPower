@@ -8,9 +8,10 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
-import net.md_5.bungee.api.event.ServerDisconnectEvent;
+import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
@@ -39,7 +40,7 @@ public final class BungeePteroPower extends Plugin implements Listener {
         // Load config.yml
         config = new Config();
 
-        // Load messages_jp.yml
+        // Load messages.yml
         messages = new Messages(config.language);
 
         // Plugin startup logic
@@ -99,46 +100,73 @@ public final class BungeePteroPower extends Plugin implements Listener {
         // Ping the target server and check if it is offline
         targetServer.ping((result, error) -> {
             if (error != null) { // The server is offline
+                String serverName = targetServer.getName();
+
                 // Start the target server
                 if (autostart) {
                     // Send title and message
                     player.sendTitle(instance.createTitle()
-                            .title(new ComponentBuilder(messages.getMessage("join_server_starting")).color(ChatColor.YELLOW).create())
-                            .subTitle(new ComponentBuilder(messages.getMessage("join_server_starting_sub")).create())
+                            .title(new ComponentBuilder(messages.getMessage("join_autostart_title", serverName)).color(ChatColor.YELLOW).create())
+                            .subTitle(new ComponentBuilder(messages.getMessage("join_autostart_subtitle", serverName)).create())
                     );
-                    player.sendMessage(messages.info("join_server_starting"));
+                    player.sendMessage(messages.info("join_autostart", serverName));
                     // Send power signal
-                    config.pterodactyl.sendPowerSignal(targetServer.getName(), pterodactylServerId, PterodactylAPI.PowerSignal.START);
+                    config.pterodactyl.sendPowerSignal(serverName, pterodactylServerId, PterodactylAPI.PowerSignal.START);
                 } else {
                     // Send message including the command to start the server
-                    player.sendMessage(messages.error("join_server_offline"));
+                    player.sendMessage(messages.error("join_start", serverName));
                     player.sendMessage(new ComponentBuilder()
-                            .append(messages.success("join_start_server"))
-                            .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ptero start " + targetServer.getName()))
-                            .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(messages.getMessage("join_click_to_start"))))
+                            .append(messages.success("join_start_button", serverName))
+                            .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ptero start " + serverName))
+                            .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(messages.getMessage("join_start_button_tooltip", serverName))))
                             .color(ChatColor.GREEN)
                             .create());
                 }
 
                 // Get the auto stop time
-                Integer autoStopTime = config.getAutoStopTime(targetServer.getName());
+                Integer autoStopTime = config.getAutoStopTime(serverName);
                 if (autoStopTime == null || autoStopTime < 0) {
                     return;
                 }
 
                 // Stop the server after a while when no one enters the server
-                stopAfterWhile(targetServer.getName(), config.noPlayerTimeoutTime + autoStopTime);
+                stopAfterWhile(serverName, config.noPlayerTimeoutTime + autoStopTime);
+                player.sendMessage(messages.info("join_autostart_warning", serverName, config.noPlayerTimeoutTime + autoStopTime));
             }
         });
     }
 
-    @EventHandler
-    public void onServerDisconnect(ServerDisconnectEvent event) {
-        // Get the target server
-        ServerInfo targetServer = event.getTarget();
+    @EventHandler(priority = (byte) 1024)
+    public void onPlayerDisconnect(PlayerDisconnectEvent event) {
+        // Called when a player disconnect from proxy IN the target server
+        ServerInfo targetServer = event.getPlayer().getServer().getInfo();
 
+        onPlayerQuit(event.getPlayer(), targetServer);
+    }
+
+    @EventHandler
+    public void onServerSwitch(ServerSwitchEvent event) {
+        // Called when a player switch the server
+        ServerInfo targetServer = event.getFrom();
+        if (targetServer == null) {
+            // Called when a player join the proxy
+            return;
+        }
+
+        onPlayerQuit(event.getPlayer(), targetServer);
+    }
+
+    /**
+     * Called when a player quits the target server.
+     *
+     * @param player       The player who quit the target server
+     * @param targetServer The target server
+     */
+    private void onPlayerQuit(ProxiedPlayer player, ServerInfo targetServer) {
         // If you are last player on the target server, stop the server after a while
-        if (!targetServer.getPlayers().isEmpty()) {
+        // Check if the server is empty, or only you are on the server
+        if (!(targetServer.getPlayers().isEmpty()
+                || targetServer.getPlayers().size() == 1 && targetServer.getPlayers().contains(player))) {
             return;
         }
 
@@ -150,6 +178,8 @@ public final class BungeePteroPower extends Plugin implements Listener {
 
         // Stop the server after a while
         stopAfterWhile(targetServer.getName(), autoStopTime);
+        // Send message
+        player.sendMessage(messages.info("leave_server_stopping", targetServer.getName(), autoStopTime));
     }
 
     /**
@@ -190,6 +220,9 @@ public final class BungeePteroPower extends Plugin implements Listener {
         // Cancel the task
         ScheduledTask task = serverStopTasks.get(serverName);
         if (task != null) {
+            // Log
+            logger.info(String.format("Canceled to stop server %s", serverName));
+
             task.cancel();
         }
     }

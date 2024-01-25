@@ -44,6 +44,7 @@ public class PteroCommand extends Command implements TabExecutor {
 
                 // Reload config.yml
                 plugin.config = new Config();
+                plugin.messages = new Messages(plugin.config.language);
                 sender.sendMessage(plugin.messages.success("config_reloaded"));
 
                 break;
@@ -66,7 +67,7 @@ public class PteroCommand extends Command implements TabExecutor {
                 // Stop server
                 String serverId = plugin.config.getServerId(serverName);
                 if (serverId == null) {
-                    sender.sendMessage(plugin.messages.error("server_not_configured"));
+                    sender.sendMessage(plugin.messages.error("server_not_configured", serverName));
                     return;
                 }
 
@@ -77,12 +78,12 @@ public class PteroCommand extends Command implements TabExecutor {
 
                 // Send signal
                 plugin.config.pterodactyl.sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
-                    sender.sendMessage(plugin.messages.success("server_" + subCommand));
+                    sender.sendMessage(plugin.messages.success("server_" + subCommand, serverName));
                 }).exceptionally(e -> {
-                    sender.sendMessage(plugin.messages.error("failed_to_" + subCommand + "_server"));
+                    sender.sendMessage(plugin.messages.error("failed_to_" + subCommand + "_server", serverName));
                     return null;
                 });
-                sender.sendMessage(plugin.messages.success("send_" + signal.signal + "_signal_to_server"));
+                sender.sendMessage(plugin.messages.success("send_" + signal.signal + "_signal_to_server", serverName));
 
                 break;
             }

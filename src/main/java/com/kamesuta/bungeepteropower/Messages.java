@@ -22,7 +22,7 @@ public class Messages {
     private final Configuration messages;
 
     /**
-     * Load messages_jp.yml
+     * Load messages.yml
      *
      * @param language Language
      * @return Messages
@@ -41,10 +41,10 @@ public class Messages {
                 }
             }
 
-            // Load messages_jp.yml
+            // Load messages.yml
             this.messages = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
         } catch (IOException e) {
-            logger.severe("Failed to create/load messages_jp.yml");
+            logger.severe("Failed to create/load messages.yml");
             throw new RuntimeException(e);
         }
     }

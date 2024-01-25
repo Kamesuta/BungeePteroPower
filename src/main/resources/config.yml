@@ -31,7 +31,7 @@ servers:
     # The time in seconds to stop the server after the last player leaves.
     # If you don't want to stop the server automatically, set it to -1.
     # If you set it to 0, the server will be stopped immediately after the last player leaves.
-    autostop: 120
+    autostop: 30
 
   hub:
     id: abcd1234
