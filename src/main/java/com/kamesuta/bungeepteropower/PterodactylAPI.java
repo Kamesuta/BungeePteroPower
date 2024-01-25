@@ -2,11 +2,9 @@ package com.kamesuta.bungeepteropower;
 
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
@@ -25,7 +23,7 @@ public class PterodactylAPI {
      * @param pterodactylUrl   The Pterodactyl server url
      * @param pterodactylToken The Pterodactyl API token
      */
-    public PterodactylAPI(URI pterodactylUrl, String pterodactylToken, Map<String, String> serverIdMap) {
+    public PterodactylAPI(URI pterodactylUrl, String pterodactylToken) {
         this.pterodactylUrl = pterodactylUrl;
         this.pterodactylToken = pterodactylToken;
     }
@@ -39,7 +37,8 @@ public class PterodactylAPI {
      * @return A future that completes when the request is finished
      */
     public CompletableFuture<Void> sendPowerSignal(String serverName, String pterodactylServerId, PowerSignal signal) {
-        logger.info(String.format("Starting server: %s (Pterodactyl server ID: %s)", serverName, pterodactylServerId));
+        String doing = signal == PowerSignal.START ? "Starting" : "Stopping";
+        logger.info(String.format("%s server: %s (Pterodactyl server ID: %s)", doing, serverName, pterodactylServerId));
 
         // Create a path
         String path = "/api/client/servers/" + pterodactylServerId + "/power";
@@ -48,7 +47,7 @@ public class PterodactylAPI {
 
         // Create a form body to send power signal
         FormBody.Builder formBuilder = new FormBody.Builder();
-        formBuilder.add("signal", signal.getSignal());
+        formBuilder.add("signal", signal.signal);
         RequestBody formBody = formBuilder.build();
 
         // Create a request
@@ -63,18 +62,19 @@ public class PterodactylAPI {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                logger.log(Level.WARNING, "Failed to start server: " + serverName, e);
+                logger.log(Level.WARNING, "Failed to " + signal.signal + " server: " + serverName, e);
                 future.completeExceptionally(e);
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (response.isSuccessful()) {
-                    logger.info("Successfully started server: " + serverName);
+                    logger.info("Successfully " + signal.signal + " server: " + serverName);
                     future.complete(null);
                 } else {
-                    logger.warning("Failed to start server: " + serverName + ". Response: " + response);
-                    future.completeExceptionally(new RuntimeException("Failed to start server: " + serverName + ". Response: " + response));
+                    String message = "Failed to " + signal.signal + " server: " + serverName + ". Response: " + response;
+                    logger.warning(message);
+                    future.completeExceptionally(new RuntimeException(message));
                 }
                 response.close();
             }
@@ -88,18 +88,15 @@ public class PterodactylAPI {
     public enum PowerSignal {
         START("start"),
         STOP("stop"),
-        RESTART("restart"),
-        KILL("kill"),
         ;
 
-        private final String signal;
+        /**
+         * The signal string to send to the Pterodactyl server.
+         */
+        public final String signal;
 
         PowerSignal(String signal) {
             this.signal = signal;
-        }
-
-        public String getSignal() {
-            return signal;
         }
     }
 }

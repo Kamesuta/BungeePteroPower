@@ -3,6 +3,10 @@
 #                       by Kamesuta                       #
 ###########################################################
 
+# When no one enters the server after starting the server,
+# the server will be stopped after this time has elapsed according to the autostop setting.
+noPlayerTimeoutTime: 120
+
 # Pterodactyl configuration
 pterodactyl:
   # The URL of your pterodactyl panel
@@ -14,8 +18,16 @@ pterodactyl:
 
 # Per server configuration
 servers:
-  # Bungeecord Server name -> Pterodactyl server ID
-  # You can find the Pterodactyl server ID in the URL of the server page.
-  # For example, if the URL is https://panel.example.com/server/1234abcd, the server ID is 1234abcd.
-  hub: 1234abcd
-  pvp: abcd1234
+  pvp:
+    # Pterodactyl server ID
+    # You can find the Pterodactyl server ID in the URL of the server page.
+    # For example, if the URL is https://panel.example.com/server/1234abcd, the server ID is 1234abcd.
+    id: 1234abcd
+    # The time in seconds to stop the server after the last player leaves.
+    # If you don't want to stop the server automatically, set it to -1.
+    # If you set it to 0, the server will be stopped immediately after the last player leaves.
+    autostop: 120
+
+  hub:
+    id: abcd1234
+    autostop: -1

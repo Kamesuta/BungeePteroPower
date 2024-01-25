@@ -21,7 +21,7 @@ import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
  */
 public class PteroCommand extends Command implements TabExecutor {
 
-    private static final String Prefix = "[Ptero] ";
+    public static final String Prefix = "[Ptero] ";
     private static final BaseComponent[] InsufficientPermissionMessage = new ComponentBuilder(Prefix + "Insufficient permission.").color(ChatColor.RED).create();
 
     public PteroCommand() {
@@ -85,7 +85,7 @@ public class PteroCommand extends Command implements TabExecutor {
                     sender.sendMessage(new ComponentBuilder(String.format(Prefix + "Failed to %s server %s", doing, serverName)).color(ChatColor.RED).create());
                     return null;
                 });
-                sender.sendMessage(new ComponentBuilder(String.format(Prefix + "Send %s signal to server %s", signal, serverName)).color(ChatColor.GREEN).create());
+                sender.sendMessage(new ComponentBuilder(String.format(Prefix + "Send %s signal to server %s", signal.signal, serverName)).color(ChatColor.GREEN).create());
 
                 break;
             }
