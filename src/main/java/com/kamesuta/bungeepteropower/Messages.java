@@ -72,7 +72,7 @@ public class Messages {
         return prefix().append(new ComponentBuilder(getMessage(key, args)).color(ChatColor.RED).create()).create();
     }
 
-    public BaseComponent[] usage(String key, Object... args) {
+    public BaseComponent[] warning(String key, Object... args) {
         return prefix().append(new ComponentBuilder(getMessage(key, args)).color(ChatColor.YELLOW).create()).create();
     }
 

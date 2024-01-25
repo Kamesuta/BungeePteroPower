@@ -1,11 +1,8 @@
 package com.kamesuta.bungeepteropower;
 
 import com.google.common.collect.ImmutableList;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
@@ -29,7 +26,7 @@ public class PteroCommand extends Command implements TabExecutor {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(plugin.messages.usage("ptero_usage"));
+            sender.sendMessage(plugin.messages.warning("ptero_usage"));
             return;
         }
 
@@ -43,8 +40,7 @@ public class PteroCommand extends Command implements TabExecutor {
                 }
 
                 // Reload config.yml
-                plugin.config = new Config();
-                plugin.messages = new Messages(plugin.config.language);
+                plugin.reload();
                 sender.sendMessage(plugin.messages.success("config_reloaded"));
 
                 break;
@@ -53,7 +49,7 @@ public class PteroCommand extends Command implements TabExecutor {
             case "stop": {
                 // args[1] is the server name
                 if (args.length < 2) {
-                    sender.sendMessage(plugin.messages.usage("ptero_" + subCommand + "_usage"));
+                    sender.sendMessage(plugin.messages.warning("ptero_" + subCommand + "_usage"));
                     return;
                 }
                 String serverName = args[1];
@@ -77,19 +73,28 @@ public class PteroCommand extends Command implements TabExecutor {
                         : PterodactylAPI.PowerSignal.STOP;
 
                 // Send signal
-                plugin.config.pterodactyl.sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
+                PterodactylAPI.sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
                     sender.sendMessage(plugin.messages.success("server_" + subCommand, serverName));
+
+                    // Get the auto stop time
+                    Integer autoStopTime = plugin.config.getAutoStopTime(serverName);
+                    if (autoStopTime != null && autoStopTime >= 0) {
+                        // Stop the server after a while
+                        plugin.delay.stopAfterWhile(serverName, autoStopTime);
+                        // Send message
+                        sender.sendMessage(plugin.messages.warning("join_autostart_warning", serverName, autoStopTime));
+                    }
+
                 }).exceptionally(e -> {
                     sender.sendMessage(plugin.messages.error("failed_to_" + subCommand + "_server", serverName));
                     return null;
                 });
-                sender.sendMessage(plugin.messages.success("send_" + signal.signal + "_signal_to_server", serverName));
 
                 break;
             }
 
             default: {
-                sender.sendMessage(plugin.messages.usage("ptero_usage"));
+                sender.sendMessage(plugin.messages.warning("ptero_usage"));
                 break;
             }
         }

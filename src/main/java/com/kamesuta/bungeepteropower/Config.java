@@ -30,9 +30,13 @@ public class Config {
      */
     public final int noPlayerTimeoutTime;
     /**
-     * The Pterodactyl API client.
+     * Pterodactyl API URL
      */
-    public final PterodactylAPI pterodactyl;
+    public final URI pterodactylUrl;
+    /**
+     * Pterodactyl API Token
+     */
+    public final String pterodactylToken;
     /**
      * Pterodactyl server ID
      */
@@ -56,30 +60,23 @@ public class Config {
 
         // Load config.yml
         try {
-            // Create Pterodactyl API client
-            URI pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
-            String pterodactylToken = configuration.getString("pterodactyl.token");
-            PterodactylAPI pterodactyl = new PterodactylAPI(pterodactylUrl, pterodactylToken);
+            // Basic settings
+            this.language = configuration.getString("language");
+            this.noPlayerTimeoutTime = configuration.getInt("noPlayerTimeoutTime");
 
-            String language = configuration.getString("language");
-            int noPlayerTimeoutTime = configuration.getInt("noPlayerTimeoutTime");
+            // Pterodactyl API credentials
+            this.pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
+            this.pterodactylToken = configuration.getString("pterodactyl.token");
 
             // Bungeecord server name -> Pterodactyl server ID list
-            HashMap<String, String> idMap = new HashMap<>();
-            HashMap<String, Integer> autoStopMap = new HashMap<>();
+            serverIdMap = new HashMap<>();
+            serverAutoStopMap = new HashMap<>();
             Configuration servers = configuration.getSection("servers");
             for (String serverId : servers.getKeys()) {
                 Configuration section = servers.getSection(serverId);
-                idMap.put(serverId, section.getString("id"));
-                autoStopMap.put(serverId, section.getInt("autostop"));
+                serverIdMap.put(serverId, section.getString("id"));
+                serverAutoStopMap.put(serverId, section.getInt("autostop"));
             }
-
-            // Initialize fields
-            this.language = language;
-            this.pterodactyl = pterodactyl;
-            this.noPlayerTimeoutTime = noPlayerTimeoutTime;
-            this.serverIdMap = idMap;
-            this.serverAutoStopMap = autoStopMap;
 
         } catch (Exception e) {
             logger.severe("Failed to read config.yml");

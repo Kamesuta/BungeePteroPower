@@ -4,30 +4,16 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 import static com.kamesuta.bungeepteropower.BungeePteroPower.logger;
+import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
 
 /**
  * Pterodactyl API client.
  */
 public class PterodactylAPI {
-    private final URI pterodactylUrl;
-    private final String pterodactylToken;
-
-    /**
-     * Create a new Pterodactyl API client.
-     *
-     * @param pterodactylUrl   The Pterodactyl server url
-     * @param pterodactylToken The Pterodactyl API token
-     */
-    public PterodactylAPI(URI pterodactylUrl, String pterodactylToken) {
-        this.pterodactylUrl = pterodactylUrl;
-        this.pterodactylToken = pterodactylToken;
-    }
-
     /**
      * Send a power signal to the Pterodactyl server.
      *
@@ -36,7 +22,7 @@ public class PterodactylAPI {
      * @param signal              The power signal to send
      * @return A future that completes when the request is finished
      */
-    public CompletableFuture<Void> sendPowerSignal(String serverName, String pterodactylServerId, PowerSignal signal) {
+    public static CompletableFuture<Void> sendPowerSignal(String serverName, String pterodactylServerId, PowerSignal signal) {
         String doing = signal == PowerSignal.START ? "Starting" : "Stopping";
         logger.info(String.format("%s server: %s (Pterodactyl server ID: %s)", doing, serverName, pterodactylServerId));
 
@@ -52,9 +38,9 @@ public class PterodactylAPI {
 
         // Create a request
         Request request = new Request.Builder()
-                .url(pterodactylUrl.resolve(path).toString())
+                .url(plugin.config.pterodactylUrl.resolve(path).toString())
                 .post(formBody)
-                .addHeader("Authorization", "Bearer " + pterodactylToken)
+                .addHeader("Authorization", "Bearer " + plugin.config.pterodactylToken)
                 .build();
 
         // Execute request and register a callback
