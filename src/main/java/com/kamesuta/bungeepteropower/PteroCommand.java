@@ -21,8 +21,6 @@ import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
  */
 public class PteroCommand extends Command implements TabExecutor {
 
-    public static final String Prefix = "[Ptero] ";
-    private static final BaseComponent[] InsufficientPermissionMessage = new ComponentBuilder(Prefix + "Insufficient permission.").color(ChatColor.RED).create();
 
     public PteroCommand() {
         super("ptero");
@@ -31,7 +29,7 @@ public class PteroCommand extends Command implements TabExecutor {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(new ComponentBuilder(Prefix + "Usage: /ptero <start|stop|reload>").color(ChatColor.YELLOW).create());
+            sender.sendMessage(plugin.messages.usage("ptero_usage"));
             return;
         }
 
@@ -40,13 +38,13 @@ public class PteroCommand extends Command implements TabExecutor {
             case "reload":
                 // Permission check
                 if (!sender.hasPermission("ptero.reload")) {
-                    sender.sendMessage(InsufficientPermissionMessage);
+                    sender.sendMessage(plugin.messages.error("insufficient_permission"));
                     return;
                 }
 
                 // Reload config.yml
-                plugin.config = PteroConfig.loadConfig();
-                sender.sendMessage(new ComponentBuilder(Prefix + "Configuration reloaded.").color(ChatColor.GREEN).create());
+                plugin.config = new Config();
+                sender.sendMessage(plugin.messages.success("config_reloaded"));
 
                 break;
 
@@ -54,21 +52,21 @@ public class PteroCommand extends Command implements TabExecutor {
             case "stop": {
                 // args[1] is the server name
                 if (args.length < 2) {
-                    sender.sendMessage(new ComponentBuilder(Prefix + "Usage: /ptero " + subCommand + " <server>").color(ChatColor.YELLOW).create());
+                    sender.sendMessage(plugin.messages.usage("ptero_" + subCommand + "_usage"));
                     return;
                 }
                 String serverName = args[1];
 
                 // Permission check
                 if (!sender.hasPermission("ptero." + subCommand + "." + serverName)) {
-                    sender.sendMessage(InsufficientPermissionMessage);
+                    sender.sendMessage(plugin.messages.error("insufficient_permission"));
                     return;
                 }
 
                 // Stop server
                 String serverId = plugin.config.getServerId(serverName);
                 if (serverId == null) {
-                    sender.sendMessage(new ComponentBuilder(Prefix + "Server " + serverName + " is not configured.").color(ChatColor.RED).create());
+                    sender.sendMessage(plugin.messages.error("server_not_configured"));
                     return;
                 }
 
@@ -76,22 +74,21 @@ public class PteroCommand extends Command implements TabExecutor {
                 PterodactylAPI.PowerSignal signal = subCommand.equals("start")
                         ? PterodactylAPI.PowerSignal.START
                         : PterodactylAPI.PowerSignal.STOP;
-                String doing = subCommand.equals("start") ? "starting" : "stopping";
 
                 // Send signal
                 plugin.config.pterodactyl.sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
-                    sender.sendMessage(new ComponentBuilder(String.format(Prefix + "Server %s is %s", serverName, doing)).color(ChatColor.GREEN).create());
+                    sender.sendMessage(plugin.messages.success("server_" + subCommand));
                 }).exceptionally(e -> {
-                    sender.sendMessage(new ComponentBuilder(String.format(Prefix + "Failed to %s server %s", doing, serverName)).color(ChatColor.RED).create());
+                    sender.sendMessage(plugin.messages.error("failed_to_" + subCommand + "_server"));
                     return null;
                 });
-                sender.sendMessage(new ComponentBuilder(String.format(Prefix + "Send %s signal to server %s", signal.signal, serverName)).color(ChatColor.GREEN).create());
+                sender.sendMessage(plugin.messages.success("send_" + signal.signal + "_signal_to_server"));
 
                 break;
             }
 
             default: {
-                sender.sendMessage(new ComponentBuilder(Prefix + "Usage: /ptero <start|stop|reload>").color(ChatColor.YELLOW).create());
+                sender.sendMessage(plugin.messages.usage("ptero_usage"));
                 break;
             }
         }

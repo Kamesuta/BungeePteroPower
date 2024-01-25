@@ -19,17 +19,20 @@ import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
 /**
  * Plugin Configurations
  */
-public class PteroConfig {
+public class Config {
     /**
-     * The Pterodactyl API client.
+     * Language
      */
-    public final PterodactylAPI pterodactyl;
+    public final String language;
     /**
      * When no one enters the server after starting the server,
      * the server will be stopped after this time has elapsed according to the autostop setting.
      */
     public final int noPlayerTimeoutTime;
-
+    /**
+     * The Pterodactyl API client.
+     */
+    public final PterodactylAPI pterodactyl;
     /**
      * Pterodactyl server ID
      */
@@ -39,11 +42,49 @@ public class PteroConfig {
      */
     private final Map<String, Integer> serverAutoStopMap;
 
-    private PteroConfig(PterodactylAPI pterodactyl, int noPlayerTimeoutTime, Map<String, String> serverIdMap, Map<String, Integer> serverAutoStopMap) {
-        this.pterodactyl = pterodactyl;
-        this.noPlayerTimeoutTime = noPlayerTimeoutTime;
-        this.serverIdMap = serverIdMap;
-        this.serverAutoStopMap = serverAutoStopMap;
+    public Config() {
+        // Create/Load config.yml
+        File configFile;
+        Configuration configuration;
+        try {
+            configFile = makeConfig();
+            configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
+        } catch (IOException e) {
+            logger.severe("Failed to create/load config.yml");
+            throw new RuntimeException(e);
+        }
+
+        // Load config.yml
+        try {
+            // Create Pterodactyl API client
+            URI pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
+            String pterodactylToken = configuration.getString("pterodactyl.token");
+            PterodactylAPI pterodactyl = new PterodactylAPI(pterodactylUrl, pterodactylToken);
+
+            String language = configuration.getString("language");
+            int noPlayerTimeoutTime = configuration.getInt("noPlayerTimeoutTime");
+
+            // Bungeecord server name -> Pterodactyl server ID list
+            HashMap<String, String> idMap = new HashMap<>();
+            HashMap<String, Integer> autoStopMap = new HashMap<>();
+            Configuration servers = configuration.getSection("servers");
+            for (String serverId : servers.getKeys()) {
+                Configuration section = servers.getSection(serverId);
+                idMap.put(serverId, section.getString("id"));
+                autoStopMap.put(serverId, section.getInt("autostop"));
+            }
+
+            // Initialize fields
+            this.language = language;
+            this.pterodactyl = pterodactyl;
+            this.noPlayerTimeoutTime = noPlayerTimeoutTime;
+            this.serverIdMap = idMap;
+            this.serverAutoStopMap = autoStopMap;
+
+        } catch (Exception e) {
+            logger.severe("Failed to read config.yml");
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -64,51 +105,6 @@ public class PteroConfig {
      */
     public @Nullable Integer getAutoStopTime(String serverName) {
         return serverAutoStopMap.get(serverName);
-    }
-
-    /**
-     * Load config.yml and initialize variables.
-     *
-     * @return Config instance
-     */
-    public static PteroConfig loadConfig() {
-        // Create/Load config.yml
-        File configFile;
-        Configuration configuration;
-        try {
-            configFile = makeConfig();
-            configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
-        } catch (IOException e) {
-            logger.severe("Failed to create/load config.yml");
-            throw new RuntimeException(e);
-        }
-
-        // Load config.yml
-        try {
-            // Create Pterodactyl API client
-            URI pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
-            String pterodactylToken = configuration.getString("pterodactyl.token");
-            PterodactylAPI pterodactyl = new PterodactylAPI(pterodactylUrl, pterodactylToken);
-
-            int noPlayerTimeoutTime = configuration.getInt("noPlayerTimeoutTime");
-
-            // Bungeecord server name -> Pterodactyl server ID list
-            HashMap<String, String> idMap = new HashMap<>();
-            HashMap<String, Integer> autoStopMap = new HashMap<>();
-            Configuration servers = configuration.getSection("servers");
-            for (String serverId : servers.getKeys()) {
-                Configuration section = servers.getSection(serverId);
-                idMap.put(serverId, section.getString("id"));
-                autoStopMap.put(serverId, section.getInt("autostop"));
-            }
-
-            // Create PteroConfig
-            return new PteroConfig(pterodactyl, noPlayerTimeoutTime, idMap, autoStopMap);
-
-        } catch (Exception e) {
-            logger.severe("Failed to read config.yml");
-            throw new RuntimeException(e);
-        }
     }
 
     private static File makeConfig() throws IOException {

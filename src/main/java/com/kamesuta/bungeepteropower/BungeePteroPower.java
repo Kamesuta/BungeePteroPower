@@ -21,15 +21,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import static com.kamesuta.bungeepteropower.PteroCommand.Prefix;
-
 /**
  * The BungeePteroPower plugin.
  */
 public final class BungeePteroPower extends Plugin implements Listener {
     public static Logger logger;
     public static BungeePteroPower plugin;
-    public PteroConfig config;
+    public Config config;
+    public Messages messages;
     private Map<String, ScheduledTask> serverStopTasks = new HashMap<>();
 
     @Override
@@ -38,7 +37,10 @@ public final class BungeePteroPower extends Plugin implements Listener {
         logger = getLogger();
 
         // Load config.yml
-        config = PteroConfig.loadConfig();
+        config = new Config();
+
+        // Load messages_jp.yml
+        messages = new Messages(config.language);
 
         // Plugin startup logic
         getProxy().getPluginManager().registerListener(this, this);
@@ -101,21 +103,21 @@ public final class BungeePteroPower extends Plugin implements Listener {
                 if (autostart) {
                     // Send title and message
                     player.sendTitle(instance.createTitle()
-                            .title(new ComponentBuilder("Starting Server...").create())
-                            .subTitle(new ComponentBuilder("Please wait a moment.").create())
+                            .title(new ComponentBuilder(messages.getMessage("join_server_starting")).color(ChatColor.YELLOW).create())
+                            .subTitle(new ComponentBuilder(messages.getMessage("join_server_starting_sub")).create())
                     );
-                    player.sendMessage(new ComponentBuilder(Prefix + "Server " + targetServer.getName() + " is starting... please wait a moment.").color(ChatColor.LIGHT_PURPLE).create());
+                    player.sendMessage(messages.info("join_server_starting"));
                     // Send power signal
                     config.pterodactyl.sendPowerSignal(targetServer.getName(), pterodactylServerId, PterodactylAPI.PowerSignal.START);
                 } else {
                     // Send message including the command to start the server
-                    player.sendMessage(new ComponentBuilder(Prefix + "Server " + targetServer.getName() + " is offline but you can start it. ↓\n").color(ChatColor.RED)
-                            .append(new ComponentBuilder("          [START SERVER]")
-                                    .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ptero start " + targetServer.getName()))
-                                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to start server")))
-                                    .color(ChatColor.GREEN)
-                                    .create()
-                            ).create());
+                    player.sendMessage(messages.error("join_server_offline"));
+                    player.sendMessage(new ComponentBuilder()
+                            .append(messages.success("join_start_server"))
+                            .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ptero start " + targetServer.getName()))
+                            .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(messages.getMessage("join_click_to_start"))))
+                            .color(ChatColor.GREEN)
+                            .create());
                 }
 
                 // Get the auto stop time
