@@ -26,7 +26,7 @@ public class PteroCommand extends Command implements TabExecutor {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(plugin.messages.warning("ptero_usage"));
+            sender.sendMessage(plugin.messages.warning("command_usage"));
             return;
         }
 
@@ -35,13 +35,13 @@ public class PteroCommand extends Command implements TabExecutor {
             case "reload":
                 // Permission check
                 if (!sender.hasPermission("ptero.reload")) {
-                    sender.sendMessage(plugin.messages.error("insufficient_permission"));
+                    sender.sendMessage(plugin.messages.error("command_insufficient_permission"));
                     return;
                 }
 
                 // Reload config.yml
                 plugin.reload();
-                sender.sendMessage(plugin.messages.success("config_reloaded"));
+                sender.sendMessage(plugin.messages.success("command_config_reloaded"));
 
                 break;
 
@@ -56,14 +56,14 @@ public class PteroCommand extends Command implements TabExecutor {
 
                 // Permission check
                 if (!sender.hasPermission("ptero." + subCommand + "." + serverName)) {
-                    sender.sendMessage(plugin.messages.error("insufficient_permission"));
+                    sender.sendMessage(plugin.messages.error("command_insufficient_permission"));
                     return;
                 }
 
                 // Stop server
                 String serverId = plugin.config.getServerId(serverName);
                 if (serverId == null) {
-                    sender.sendMessage(plugin.messages.error("server_not_configured", serverName));
+                    sender.sendMessage(plugin.messages.error("command_server_not_configured", serverName));
                     return;
                 }
 
@@ -94,7 +94,7 @@ public class PteroCommand extends Command implements TabExecutor {
             }
 
             default: {
-                sender.sendMessage(plugin.messages.warning("ptero_usage"));
+                sender.sendMessage(plugin.messages.warning("command_usage"));
                 break;
             }
         }

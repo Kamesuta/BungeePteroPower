@@ -3,9 +3,10 @@ package com.kamesuta.bungeepteropower;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.kamesuta.bungeepteropower.BungeePteroPower.logger;
 import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
@@ -17,7 +18,7 @@ public class DelayManager {
     /**
      * Tasks in progress
      */
-    private final Map<String, ScheduledTask> serverStopTasks = new HashMap<>();
+    private final ConcurrentMap<String, ScheduledTask> serverStopTasks = new ConcurrentHashMap<>();
 
     /**
      * Stop the server after a while.
@@ -26,9 +27,6 @@ public class DelayManager {
      * @param autoStopTime The time in seconds to stop the server
      */
     public void stopAfterWhile(String serverName, int autoStopTime) {
-        // Log
-        logger.info(String.format("Scheduled to stop server %s after %d seconds", serverName, autoStopTime));
-
         // Get the Pterodactyl server ID
         String pterodactylServerId = plugin.config.getServerId(serverName);
         if (pterodactylServerId == null) {
@@ -39,10 +37,22 @@ public class DelayManager {
         cancelStop(serverName);
 
         // Stop the server after the auto stop time
+        AtomicInteger taskId = new AtomicInteger();
         ScheduledTask task = ProxyServer.getInstance().getScheduler().schedule(plugin, () -> {
+            // Log
+            logger.info(String.format("Scheduled task executed: stop server %s (task ID: %d)", serverName, taskId.get()));
+
             // Stop the target server
             PterodactylAPI.sendPowerSignal(serverName, pterodactylServerId, PterodactylAPI.PowerSignal.STOP);
+
+            // Unregister the task
+            serverStopTasks.remove(serverName);
+
         }, autoStopTime, TimeUnit.SECONDS);
+        taskId.set(task.getId());
+
+        // Log
+        logger.info(String.format("Scheduled task registered: stop server %s (task ID: %d)", serverName, task.getId()));
 
         // Register the task
         serverStopTasks.put(serverName, task);
@@ -55,10 +65,10 @@ public class DelayManager {
      */
     public void cancelStop(String serverName) {
         // Cancel the task
-        ScheduledTask task = serverStopTasks.get(serverName);
+        ScheduledTask task = serverStopTasks.remove(serverName);
         if (task != null) {
             // Log
-            logger.info(String.format("Canceled to stop server %s", serverName));
+            logger.info(String.format("Scheduled task canceled: stop server %s (task ID: %d)", serverName, task.getId()));
 
             task.cancel();
         }
