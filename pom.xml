@@ -6,7 +6,7 @@
 
     <groupId>com.kamesuta</groupId>
     <artifactId>BungeePteroPower</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeePteroPower</name>
@@ -16,7 +16,7 @@
         efficiently.
     </description>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -42,30 +42,6 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <configuration>
-                            <relocations>
-                                <relocation>
-                                    <pattern>okhttp3</pattern>
-                                    <shadedPattern>com.kamesuta.bungeepteropower.lib.okhttp3</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>okio</pattern>
-                                    <shadedPattern>com.kamesuta.bungeepteropower.lib.okio</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>kotlin</pattern>
-                                    <shadedPattern>com.kamesuta.bungeepteropower.lib.kotlin</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.jetbrains.annotations</pattern>
-                                    <shadedPattern>com.kamesuta.bungeepteropower.lib.jetbrains.annotations</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.intellij.lang.annotations</pattern>
-                                    <shadedPattern>com.kamesuta.bungeepteropower.lib.intellij.annotations</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -95,11 +71,6 @@
             <artifactId>waterfall-api</artifactId>
             <version>1.20-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
         </dependency>
     </dependencies>
 </project>

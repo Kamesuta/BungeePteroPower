@@ -1,9 +1,9 @@
 package com.kamesuta.bungeepteropower;
 
-import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
@@ -29,42 +29,39 @@ public class PterodactylAPI {
         // Create a path
         String path = "/api/client/servers/" + pterodactylServerId + "/power";
 
-        OkHttpClient client = new OkHttpClient();
+        HttpClient client = HttpClient.newHttpClient();
 
         // Create a form body to send power signal
-        FormBody.Builder formBuilder = new FormBody.Builder();
-        formBuilder.add("signal", signal.signal);
-        RequestBody formBody = formBuilder.build();
+        String formBody = "signal=" + signal.signal;
 
         // Create a request
-        Request request = new Request.Builder()
-                .url(plugin.config.pterodactylUrl.resolve(path).toString())
-                .post(formBody)
-                .addHeader("Authorization", "Bearer " + plugin.config.pterodactylToken)
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(plugin.config.pterodactylUrl.resolve(path).toString()))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .header("Authorization", "Bearer " + plugin.config.pterodactylToken)
+                .POST(HttpRequest.BodyPublishers.ofString(formBody))
                 .build();
 
         // Execute request and register a callback
         CompletableFuture<Void> future = new CompletableFuture<>();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                logger.log(Level.WARNING, "Failed to " + signal.signal + " server: " + serverName, e);
-                future.completeExceptionally(e);
-            }
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::statusCode)
+                .thenAccept(code -> {
+                    if (code >= 200 && code < 300) {
+                        logger.info("Successfully " + signal.signal + " server: " + serverName);
+                        future.complete(null);
+                    } else {
+                        String message = "Failed to " + signal.signal + " server: " + serverName + ". Response code: " + code;
+                        logger.warning(message);
+                        future.completeExceptionally(new RuntimeException(message));
+                    }
+                })
+                .exceptionally(e -> {
+                    logger.log(Level.WARNING, "Failed to " + signal.signal + " server: " + serverName, e);
+                    future.completeExceptionally(e);
+                    return null;
+                });
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (response.isSuccessful()) {
-                    logger.info("Successfully " + signal.signal + " server: " + serverName);
-                    future.complete(null);
-                } else {
-                    String message = "Failed to " + signal.signal + " server: " + serverName + ". Response: " + response;
-                    logger.warning(message);
-                    future.completeExceptionally(new RuntimeException(message));
-                }
-                response.close();
-            }
-        });
         return future;
     }
 

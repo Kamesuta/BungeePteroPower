@@ -17,6 +17,11 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/4f36d65c-ca9f-4dd2-
 
 - [GitHub Releases](https://github.com/Kamesuta/BungeePteroPower/releases) からダウンロードできます。
 
+## 必要要件
+
+- Java 11 以上
+  - PterodactylのAPIを使用するため、java.net.http.HttpClientを使用しています。
+
 ## インストール
 
 1. PterodactylパネルでAPIキーを取得します。
