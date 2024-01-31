@@ -1,8 +1,10 @@
 # BungeePteroPower
 
-BungeePteroPower is a plugin that can automatically start/stop servers based on the number of players. 
-It can start and stop servers on the Pterodactyl panel when players join or leave the Bungeecord proxy server. 
-This helps to save server resources and manage servers more efficiently.
+BungeePteroPower is a plugin that can automatically start/stop servers based on the number of players.  
+It can start and stop servers on the Pterodactyl panel when players join or leave the Bungeecord proxy server.  
+This helps to save server resources and manage servers more efficiently.  
+
+https://github.com/Kamesuta/BungeePteroPower/assets/16362824/4f36d65c-ca9f-4dd2-9413-ecf15cd094dc
 
 ## Key Features
 
