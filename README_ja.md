@@ -1,11 +1,12 @@
 # BungeePteroPower
-![LogoArt](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/e8914f79-806b-436c-a0e6-e4eaf8ad5eca)
+![LogoArt](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/e8914f79-806b-436c-a0e6-e4eaf8ad5eca)  
+[![Spigotmc Available](https://img.shields.io/badge/Spigotmc-ダウンロード-green)](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/)
 
 BungeePteroPowerは、サーバーの人数に応じてサーバーを自動的に起動/終了することができるプラグインです。  
-プレイヤーがBungeecordプロキシサーバーに参加または退出したときに、Pterodactylパネル上のサーバーを起動および停止することができます。  
+プレイヤーがBungeecordプロキシサーバーに参加または退出したときに、[Pterodactylパネル](https://pterodactyl.io/)上のサーバーを起動および停止することができます。  
 そのため、サーバーのリソースを節約し、サーバーをより効率的に管理するのに役立ちます。  
 
-https://github.com/Kamesuta/BungeePteroPower/assets/16362824/4f36d65c-ca9f-4dd2-9413-ecf15cd094dc
+https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-89f3-3342b5812593
 
 ## 主な機能
 
@@ -17,6 +18,8 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/4f36d65c-ca9f-4dd2-
 ## ダウンロード
 
 - [Spigot](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/) または [GitHub Releases](https://github.com/Kamesuta/BungeePteroPower/releases) からダウンロードできます。
+
+![Overview](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/3cece79e-b41a-4119-a6cd-4800dd4f705d)
 
 ## 必要要件
 
