@@ -1,4 +1,5 @@
 # BungeePteroPower
+![LogoArt](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/e8914f79-806b-436c-a0e6-e4eaf8ad5eca)
 
 BungeePteroPowerは、サーバーの人数に応じてサーバーを自動的に起動/終了することができるプラグインです。  
 プレイヤーがBungeecordプロキシサーバーに参加または退出したときに、Pterodactylパネル上のサーバーを起動および停止することができます。  
