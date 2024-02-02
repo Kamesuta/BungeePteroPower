@@ -16,7 +16,7 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/4f36d65c-ca9f-4dd2-
 
 ## Download
 
-- You can download it from [GitHub Releases](https://github.com/Kamesuta/BungeePteroPower/releases).
+- You can download it from [Spigot](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/) or [GitHub Releases](https://github.com/Kamesuta/BungeePteroPower/releases).
 
 ## Requirements
 
