@@ -1,11 +1,12 @@
 # BungeePteroPower
-![LogoArt](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/e8914f79-806b-436c-a0e6-e4eaf8ad5eca)
+![LogoArt](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/e8914f79-806b-436c-a0e6-e4eaf8ad5eca)  
+[![Spigotmc Available](https://img.shields.io/badge/Spigotmc-Download-green)](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/)
 
 BungeePteroPower is a plugin that can automatically start/stop servers based on the number of players.  
-It can start and stop servers on the Pterodactyl panel when players join or leave the Bungeecord proxy server.  
+It can start and stop servers on the [Pterodactyl panel](https://pterodactyl.io/) when players join or leave the Bungeecord proxy server.  
 This helps to save server resources and manage servers more efficiently.  
 
-https://github.com/Kamesuta/BungeePteroPower/assets/16362824/4f36d65c-ca9f-4dd2-9413-ecf15cd094dc
+https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-89f3-3342b5812593
 
 ## Key Features
 
@@ -13,6 +14,8 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/4f36d65c-ca9f-4dd2-
 - Automatically starts servers using Pterodactyl's API when players join the server.
 - The time until shutdown can be configured for each server.
 - Permissions settings allow for specifying players who can manually start servers and players for whom automatic startup is enabled upon joining.
+
+![Overview](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/3cece79e-b41a-4119-a6cd-4800dd4f705d)
 
 ## Download
 
