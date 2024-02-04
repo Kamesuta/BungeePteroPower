@@ -20,6 +20,18 @@ import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
  */
 public class Messages {
     private final Configuration messages;
+    private final Messages parent;
+
+    /**
+     * Create a new Messages
+     *
+     * @param messages Messages configuration
+     * @param parent   Parent messages
+     */
+    private Messages(Configuration messages, Messages parent) {
+        this.messages = messages;
+        this.parent = parent;
+    }
 
     /**
      * Load messages.yml
@@ -27,7 +39,7 @@ public class Messages {
      * @param language Language
      * @return Messages
      */
-    public Messages(String language) {
+    public static Messages load(String language, Messages parent) {
         try {
             // Create the data folder if it does not exist
             if (!plugin.getDataFolder().exists()) {
@@ -42,9 +54,31 @@ public class Messages {
             }
 
             // Load messages.yml
-            this.messages = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
+            Configuration messages = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
+
+            return new Messages(messages, parent);
         } catch (IOException e) {
             logger.severe("Failed to create/load messages.yml");
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Load fallback messages.yml from resource
+     *
+     * @param language Language
+     * @return Messages
+     */
+    public static Messages loadFromResource(String language) {
+        try {
+            // Load messages.yml
+            try (InputStream in = plugin.getResourceAsStream("messages_" + language + ".yml")) {
+                Configuration messages = ConfigurationProvider.getProvider(YamlConfiguration.class).load(in);
+
+                return new Messages(messages, null);
+            }
+        } catch (IOException e) {
+            logger.severe("Failed to load fallback messages_" + language + ".yml");
             throw new RuntimeException(e);
         }
     }
@@ -59,8 +93,9 @@ public class Messages {
     public String getMessage(String key, Object... args) {
         String rawMessage = this.messages.getString(key);
         if (rawMessage != null) {
-            rawMessage = rawMessage.replace('&', '§');
             return String.format(rawMessage, args);
+        } else if (parent != null) {
+            return parent.getMessage(key, args);
         } else {
             return "Message key not found: " + key;
         }

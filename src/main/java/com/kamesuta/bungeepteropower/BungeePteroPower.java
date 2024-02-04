@@ -30,6 +30,10 @@ public final class BungeePteroPower extends Plugin implements Listener {
      */
     public Config config;
     /**
+     * Fallback Translations
+     */
+    public Messages fallbackMessages;
+    /**
      * Translations
      */
     public Messages messages;
@@ -42,6 +46,10 @@ public final class BungeePteroPower extends Plugin implements Listener {
     public void onEnable() {
         plugin = this;
         logger = getLogger();
+
+        // Load messages.yml
+        fallbackMessages = Messages.loadFromResource("en");
+        // Load config and translations
         reload();
 
         // Create DelayManager
@@ -61,7 +69,7 @@ public final class BungeePteroPower extends Plugin implements Listener {
         config = new Config();
 
         // Load messages.yml
-        messages = new Messages(config.language);
+        messages = Messages.load(config.language, fallbackMessages);
     }
 
     @Override

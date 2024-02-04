@@ -48,7 +48,7 @@ public class PteroCommand extends Command implements TabExecutor {
             case "stop": {
                 // args[1] is the server name
                 if (args.length < 2) {
-                    sender.sendMessage(plugin.messages.warning("ptero_" + subCommand + "_usage"));
+                    sender.sendMessage(plugin.messages.warning("command_" + subCommand + "_usage"));
                     return;
                 }
                 String serverName = args[1];
@@ -73,7 +73,7 @@ public class PteroCommand extends Command implements TabExecutor {
 
                 // Send signal
                 PterodactylAPI.sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
-                    sender.sendMessage(plugin.messages.success("server_" + subCommand, serverName));
+                    sender.sendMessage(plugin.messages.success("command_server_" + subCommand, serverName));
 
                     // Get the auto stop time
                     Integer serverTimeout = plugin.config.getServerTimeout(serverName);
@@ -81,11 +81,11 @@ public class PteroCommand extends Command implements TabExecutor {
                         // Stop the server after a while
                         plugin.delay.stopAfterWhile(serverName, serverTimeout);
                         // Send message
-                        sender.sendMessage(plugin.messages.warning("join_autostart_warning", serverName, serverTimeout));
+                        sender.sendMessage(plugin.messages.warning("command_server_start_warning", serverName, serverTimeout));
                     }
 
                 }).exceptionally(e -> {
-                    sender.sendMessage(plugin.messages.error("failed_to_" + subCommand + "_server", serverName));
+                    sender.sendMessage(plugin.messages.error("command_failed_" + subCommand, serverName));
                     return null;
                 });
 

@@ -45,14 +45,15 @@ public class PterodactylAPI {
         // Execute request and register a callback
         CompletableFuture<Void> future = new CompletableFuture<>();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::statusCode)
-                .thenAccept(code -> {
+                .thenAccept(status -> {
+                    int code = status.statusCode();
                     if (code >= 200 && code < 300) {
                         logger.info("Successfully " + signal.signal + " server: " + serverName);
                         future.complete(null);
                     } else {
                         String message = "Failed to " + signal.signal + " server: " + serverName + ". Response code: " + code;
                         logger.warning(message);
+                        logger.info("Request: " + request + ", Response: " + code + " " + status.body());
                         future.completeExceptionally(new RuntimeException(message));
                     }
                 })
