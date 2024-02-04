@@ -56,7 +56,6 @@ public class PteroCommand extends Command implements TabExecutor {
                     sender.sendMessage(plugin.messages.warning("command_" + subCommand + "_usage"));
                     return;
                 }
-                boolean autoJoin = args.length == 3 && args[2].equals("join") && sender instanceof ProxiedPlayer;
                 String serverName = args[1];
 
                 // Permission check
@@ -77,6 +76,12 @@ public class PteroCommand extends Command implements TabExecutor {
                         ? PterodactylAPI.PowerSignal.START
                         : PterodactylAPI.PowerSignal.STOP;
 
+                // Cancel existing stop task
+                if (signal == PterodactylAPI.PowerSignal.STOP)
+                    plugin.delay.cancelStop(serverName);
+
+                boolean autoJoin = subCommand.equals("start") && args.length >= 3 && args[2].equals("join") && sender instanceof ProxiedPlayer;
+
                 // Send signal
                 PterodactylAPI.sendPowerSignal(serverName, serverId, signal).thenRun(() ->{
 
@@ -94,13 +99,17 @@ public class PteroCommand extends Command implements TabExecutor {
                     else
                         sender.sendMessage(plugin.messages.success("command_server_" + subCommand, serverName));
 
-                    // Get the auto stop time
-                    Integer serverTimeout = plugin.config.getServerTimeout(serverName);
-                    if (subCommand.equals("start") && serverTimeout != null && serverTimeout >= 0) {
-                        // Stop the server after a while
-                        plugin.delay.stopAfterWhile(serverName, serverTimeout);
-                        // Send message
-                        sender.sendMessage(plugin.messages.warning("command_server_start_warning", serverName, serverTimeout));
+                    // Start auto stop task and send warning
+                    if (subCommand.equals("start"))
+                    {
+                        // Get the auto stop time
+                        Integer serverTimeout = plugin.config.getServerTimeout(serverName);
+                        if (serverTimeout != null && serverTimeout >= 0) {
+                            // Stop the server after a while
+                            plugin.delay.stopAfterWhile(serverName, serverTimeout);
+                            // Send message
+                            sender.sendMessage(plugin.messages.warning("command_server_start_warning", serverName, serverTimeout));
+                        }
                     }
 
                 }).exceptionally(e -> {
@@ -157,7 +166,8 @@ public class PteroCommand extends Command implements TabExecutor {
 
     private CompletableFuture<Void> onceStarted(ServerInfo serverInfo) {
         CompletableFuture<Void> future = new CompletableFuture<Void>();
-        Instant timeout = Instant.now().plusMillis(120000);
+
+        Instant timeout = Instant.now().plusSeconds(plugin.config.autoJoinTimeout);
 
         Callback<ServerPing> callback = new Callback<ServerPing>() {
             @Override

@@ -12,6 +12,10 @@ language: en
 # the server will be stopped after this time has elapsed according to the timeout setting.
 startTimeout: 120
 
+# The number of seconds the plugin will try to connect the player to the desired server
+# Set this to the maximum time the server can take to start
+autoJoinTimeout: 60
+
 # Pterodactyl configuration
 pterodactyl:
   # The URL of your pterodactyl panel

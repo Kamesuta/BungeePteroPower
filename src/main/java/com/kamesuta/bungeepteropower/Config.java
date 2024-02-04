@@ -30,6 +30,11 @@ public class Config {
      */
     public final int startTimeout;
     /**
+     * The number of seconds the plugin will try to connect the player to the desired server
+     * Set this to the maximum time the server can take to start
+     */
+    public final int autoJoinTimeout;
+    /**
      * Pterodactyl API URL
      */
     public final URI pterodactylUrl;
@@ -63,6 +68,7 @@ public class Config {
             // Basic settings
             this.language = configuration.getString("language");
             this.startTimeout = configuration.getInt("startTimeout");
+            this.autoJoinTimeout = configuration.getInt("autoJoinTimeout");
 
             // Pterodactyl API credentials
             this.pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
