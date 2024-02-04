@@ -24,29 +24,78 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
 ## Requirements
 
 - Java 11 or higher
-  - uses java.net.http.HttpClient for Pterodactyl API
+    - uses `java.net.http.HttpClient` in Java 11 for REST API communication with Pterodactyl.
 
-## Installation
+## Getting Started
 
 1. Obtain an API key in the Pterodactyl panel.
-   - The client API key for Pterodactyl can be found in the "API Credentials" tab on the account page.
+    - The client API key for Pterodactyl can be found in the "API Credentials" tab on the account page.
 2. Add the plugin to the BungeeCord server and start it.
-3. Configure the [required settings](#required-settings) in the generated `config.yml` file.
+3. Configure the [Required Settings](#required-settings) in the generated `plugins/BungeePteroPower/config.yml` file.
+    ```yml
+    # Pterodactyl configuration
+    pterodactyl:
+      # The URL of your pterodactyl panel
+      # If you use Cloudflare Tunnel, you need to allow the ip in the bypass setting.
+      url: "https://panel.example.com"
+      # The client api key of your pterodactyl panel. It starts with "ptlc_".
+      # You can find the client api key in the "API Credentials" tab of the "Account" page.
+      apikey: "ptlc_000000000000000000000000000000000000000000"
+    
+    # Per server configuration
+    servers:
+      pvp:
+        # Pterodactyl server ID
+        # You can find the Pterodactyl server ID in the URL of the server page.
+        # For example, if the URL is https://panel.example.com/server/1234abcd, the server ID is 1234abcd.
+        id: 1234abcd
+        # The time in seconds to stop the server after the last player leaves.
+        # If you don't want to stop the server automatically, set it to -1.
+        # If you set it to 0, the server will be stopped immediately after the last player leaves.
+        timeout: 30
+    ```
 4. Reload the config with the `/ptero reload` command.
-
+5. Configure the [Permission Settings](#permission-settings).  
+    (You **MUST** configure permission to use this plugin, otherwise the player will not be able to do anything!)  
+    You can use either of the following methods.  
+    - Use a permission plugin like [LuckPerms](https://luckperms.net/).
+        1. For LuckPerms, use the following commands to set permissions:
+            ```
+            # The player can start all servers
+            /lp user <player_name> permission set ptero.autostart.*
+            # The player can start specific server
+            /lp user <player_name> permission set ptero.autostart.<server_name>
+            # All players can start all servers
+            /lp group default permission set ptero.autostart.*
+            ```
+            ※ `<player_name>` refers to the player's name, `<server_name>` refers to the server name specified in BungeeCord's `config.yml`.
+    - Use built-in permission settings.
+        1. Open `config.yml`.
+        2. Add the following settings to the `config.yml` file.
+            ```yml
+            permissions:
+                default:
+                # All players can start all server
+                - ptero.autostart.*
+                # All players can start specific server
+                - ptero.autostart.<server_name>
+            ```  
+            ※ `<server_name>` refers to the server name specified in BungeeCord's `config.yml`.
+        3. Restart the BungeeCord server.
+  
 ## Usage
 
 ### Automatic Startup
 
 - Servers will automatically start when players attempt to join each server on BungeeCord.
-  - This feature is available only to players with the `ptero.autostart.<server_name>` permission.
+    - This feature is available only to players with the `ptero.autostart.<server_name>` permission.
 
 ### Manual Start/Stop
 
 - Use the `/ptero start <server_name>` command to manually start a server.
-  - This command is available only to players with the `ptero.start.<server_name>` permission.
+    - This command is available only to players with the `ptero.start.<server_name>` permission.
 - Use the `/ptero stop <server_name>` command to manually stop a server.
-  - This command is available only to players with the `ptero.stop.<server_name>` permission.
+    - This command is available only to players with the `ptero.stop.<server_name>` permission.
 
 ※ `<server_name>` refers to the server name specified in BungeeCord's `config.yml`.
 
@@ -61,24 +110,27 @@ The `config.yml` file includes the following settings, but not all items need to
 ### Required Settings
 
 - `pterodactyl`: Configure settings for Pterodactyl, including URL and API key.
-  - `url`: Set the URL of your Pterodactyl panel. (Example: https://panel.example.com/)
-    - If you are using services like Cloudflare Tunnel, ensure proper bypass settings for IP-based communication.
-  - `token`: Set the client API key for Pterodactyl.
-    - It begins with `ptlc_`.
-    - Client API keys for Pterodactyl can be found in the "API Credentials" tab on the account page.
+    - `url`: Set the URL of your Pterodactyl panel. (Example: https://panel.example.com/)
+        - If you are using services like Cloudflare Tunnel, ensure proper bypass settings for IP-based communication.
+    - `apikey`: Set the client API key for Pterodactyl.
+        - It begins with `ptlc_`.
+        - Client API keys for Pterodactyl can be found in the "API Credentials" tab on the account page.
 
 ### Optional Settings
 
 - `language`: Set the language to be used. The default is English (`en`).
-  - Supported languages are English (`en`) and Japanese (`ja`).
+    - Supported languages are as follows
+        - English (`en`)
+        - Japanese (`ja`)
+        - French (`fr`)
 - `startTimeout`: After starting a server with this plugin, it will stop the server if there are no players for a certain period. The unit is seconds.
-  - After starting, the server will stop after the `startTimeout` plus the server's timeout duration.
-  - Setting it to 1 keeps the server running until players join and leave.
+    - After starting, the server will stop after the `startTimeout` plus the server's timeout duration.
+    - Setting it to 1 keeps the server running until players join and leave.
 - `servers`: Configure settings for each server. Set the server ID and the time until automatic shutdown.
-  - `id`: Set the server ID on Pterodactyl.
-    - Server IDs on Pterodactyl can be found in the URL of the server page.
-    - For example, if the URL is https://panel.example.com/server/1234abcd, the server ID is 1234abcd.
-  - `timeout`: When there are no players on the server, it will stop after a certain period. The unit is seconds.
+    - `id`: Set the server ID on Pterodactyl.
+        - Server IDs on Pterodactyl can be found in the URL of the server page.
+        - For example, if the URL is https://panel.example.com/server/1234abcd, the server ID is 1234abcd.
+    - `timeout`: When there are no players on the server, it will stop after a certain period. The unit is seconds.
 
 ### Permission Settings
 
@@ -86,7 +138,7 @@ BungeePteroPower plugin allows fine-grained control over commands available to p
 
 - `ptero.autostart.<server_name>`: Servers will automatically start when players join each server on BungeeCord for players with this permission.
 - `ptero.start.<server_name>`: Allows the `/ptero start <server_name>` command to manually start a server.
-  - If a player doesn't have `ptero.autostart.<server_name>` permission but has this permission, they will see a manual start button when they join the server.
+    - If a player doesn't have `ptero.autostart.<server_name>` permission but has this permission, they will see a manual start button when they join the server.
 - `ptero.stop.<server_name>`: Allows the `/ptero stop <server_name>` command to manually stop a server.
 - `ptero.reload`: Allows the `/ptero reload` command to reload the config.
 
