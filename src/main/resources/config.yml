@@ -4,7 +4,7 @@
 ###########################################################
 
 # Language
-# Supported languages: en, ja, fr
+# Supported languages: en, ja, fr, ro
 # You can add your own language file in the plugins/BungeePteroPower directory.
 language: en
 
