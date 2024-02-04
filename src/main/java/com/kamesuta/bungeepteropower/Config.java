@@ -1,5 +1,8 @@
 package com.kamesuta.bungeepteropower;
 
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -11,7 +14,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.kamesuta.bungeepteropower.BungeePteroPower.logger;
 import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
@@ -104,6 +110,15 @@ public class Config {
         return serverTimeoutMap.get(serverName);
     }
 
+    /**
+     * Get the Bungeecord server names.
+     *
+     * @return The Bungeecord server names
+     */
+    public Set<String> getServerNames() {
+        return serverIdMap.keySet();
+    }
+
     private static File makeConfig() throws IOException {
         // Create the data folder if it does not exist
         if (!plugin.getDataFolder().exists()) {
@@ -119,5 +134,37 @@ public class Config {
         }
 
         return file;
+    }
+
+    /**
+     * Validate configuration
+     */
+    public void validateConfig(CommandSender sender) {
+        // Validate the pterodactyl URL
+        if (pterodactylUrl == null) {
+            sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl URL in the configuration is not set.").create());
+        }
+        if (pterodactylUrl.getHost().endsWith(".example.com")) {
+            sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl URL in the configuration is example.com. Please set the correct URL.").create());
+        }
+        // Validate the pterodactyl API key
+        if (pterodactylApiKey == null) {
+            sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl API key in the configuration is not set.").create());
+        }
+        if (!pterodactylApiKey.startsWith("ptlc_")) {
+            sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl API key should start with 'ptlc_'.").create());
+        }
+        if (pterodactylApiKey.startsWith("ptlc_0000")) {
+            sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl API key in the configuration is the default key. Please set the correct key.").create());
+        }
+
+        // Validate the server names
+        Map<String, ServerInfo> bungeecordServerNames = ProxyServer.getInstance().getServers();
+        List<String> invalidServerNames = getServerNames().stream()
+                .filter(serverName -> !bungeecordServerNames.containsKey(serverName))
+                .collect(Collectors.toList());
+        if (!invalidServerNames.isEmpty()) {
+            sender.sendMessage(plugin.messages.prefix().append(String.format("Warning: The following server names in the configuration are not found in the BungeeCord server list: %s", String.join(", ", invalidServerNames))).create());
+        }
     }
 }

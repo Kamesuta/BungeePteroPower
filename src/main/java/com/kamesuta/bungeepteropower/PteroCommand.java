@@ -41,6 +41,7 @@ public class PteroCommand extends Command implements TabExecutor {
 
                 // Reload config.yml
                 plugin.reload();
+                plugin.config.validateConfig(sender);
                 sender.sendMessage(plugin.messages.success("command_config_reloaded"));
 
                 break;
