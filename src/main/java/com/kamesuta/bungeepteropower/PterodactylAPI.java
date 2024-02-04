@@ -38,7 +38,7 @@ public class PterodactylAPI {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(plugin.config.pterodactylUrl.resolve(path).toString()))
                 .header("Content-Type", "application/x-www-form-urlencoded")
-                .header("Authorization", "Bearer " + plugin.config.pterodactylToken)
+                .header("Authorization", "Bearer " + plugin.config.pterodactylApiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(formBody))
                 .build();
 

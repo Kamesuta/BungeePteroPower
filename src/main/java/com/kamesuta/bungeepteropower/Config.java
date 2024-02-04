@@ -34,9 +34,9 @@ public class Config {
      */
     public final URI pterodactylUrl;
     /**
-     * Pterodactyl API Token
+     * Pterodactyl API Key
      */
-    public final String pterodactylToken;
+    public final String pterodactylApiKey;
     /**
      * Pterodactyl server ID
      */
@@ -66,7 +66,7 @@ public class Config {
 
             // Pterodactyl API credentials
             this.pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
-            this.pterodactylToken = configuration.getString("pterodactyl.token");
+            this.pterodactylApiKey = configuration.getString("pterodactyl.apikey");
 
             // Bungeecord server name -> Pterodactyl server ID list
             serverIdMap = new HashMap<>();

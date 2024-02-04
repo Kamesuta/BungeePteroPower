@@ -57,7 +57,13 @@ public class Messages {
      * @return Translated message
      */
     public String getMessage(String key, Object... args) {
-        return String.format(this.messages.getString(key), args);
+        String rawMessage = this.messages.getString(key);
+        if (rawMessage != null) {
+            rawMessage = rawMessage.replace('&', '§');
+            return String.format(rawMessage, args);
+        } else {
+            return "Message key not found: " + key;
+        }
     }
 
     public ComponentBuilder prefix() {

@@ -44,7 +44,6 @@ public class PteroCommand extends Command implements TabExecutor {
                 sender.sendMessage(plugin.messages.success("command_config_reloaded"));
 
                 break;
-
             case "start":
             case "stop": {
                 // args[1] is the server name
