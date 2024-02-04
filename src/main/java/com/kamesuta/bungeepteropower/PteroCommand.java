@@ -1,15 +1,20 @@
 package com.kamesuta.bungeepteropower;
 
 import com.google.common.collect.ImmutableList;
+import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.time.Instant;
 
 import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
 
@@ -51,6 +56,7 @@ public class PteroCommand extends Command implements TabExecutor {
                     sender.sendMessage(plugin.messages.warning("command_" + subCommand + "_usage"));
                     return;
                 }
+                boolean autoJoin = args.length == 3 && args[2].equals("join") && sender instanceof ProxiedPlayer;
                 String serverName = args[1];
 
                 // Permission check
@@ -72,12 +78,25 @@ public class PteroCommand extends Command implements TabExecutor {
                         : PterodactylAPI.PowerSignal.STOP;
 
                 // Send signal
-                PterodactylAPI.sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
-                    sender.sendMessage(plugin.messages.success("command_server_" + subCommand, serverName));
+                PterodactylAPI.sendPowerSignal(serverName, serverId, signal).thenRun(() ->{
+
+                    if (autoJoin) {
+                        sender.sendMessage(plugin.messages.success("command_server_start_autojoin", serverName));
+                        ServerInfo serverInfo = plugin.getProxy().getServerInfo(serverName);
+                        onceStarted(serverInfo).thenRun(()-> {
+                            ProxiedPlayer player = (ProxiedPlayer)sender;
+                            player.connect(serverInfo);
+                        }).exceptionally((Throwable e)-> {
+                            sender.sendMessage(plugin.messages.warning("command_server_start_autojoin_warning", serverName));
+                            return null;
+                        });
+                    }
+                    else
+                        sender.sendMessage(plugin.messages.success("command_server_" + subCommand, serverName));
 
                     // Get the auto stop time
                     Integer serverTimeout = plugin.config.getServerTimeout(serverName);
-                    if (serverTimeout != null && serverTimeout >= 0) {
+                    if (subCommand.equals("start") && serverTimeout != null && serverTimeout >= 0) {
                         // Stop the server after a while
                         plugin.delay.stopAfterWhile(serverName, serverTimeout);
                         // Send message
@@ -134,5 +153,27 @@ public class PteroCommand extends Command implements TabExecutor {
         }
 
         return ImmutableList.of();
+    }
+
+    private CompletableFuture<Void> onceStarted(ServerInfo serverInfo) {
+        CompletableFuture<Void> future = new CompletableFuture<Void>();
+        Instant timeout = Instant.now().plusMillis(120000);
+
+        Callback<ServerPing> callback = new Callback<ServerPing>() {
+            @Override
+            public void done(ServerPing serverPing, Throwable throwable) {
+                if (throwable == null && serverPing != null) {
+                    future.complete(null);
+                    return;
+                }
+                if (Instant.now().isBefore(timeout)) {
+                    serverInfo.ping(this);
+                    return;
+                }
+                future.completeExceptionally(null);
+            }
+        };
+        serverInfo.ping(callback);
+        return future;
     }
 }
