@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,16 @@ import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
  * Plugin Configurations
  */
 public class Config {
+    /**
+     * Required config version
+     * Increments when a property that requires manual modification is added to the config
+     */
+    public static final int CONFIG_VERSION = 1;
+
+    /**
+     * Config version
+     */
+    public final int configVersion;
     /**
      * Language
      */
@@ -70,6 +81,7 @@ public class Config {
         // Load config.yml
         try {
             // Basic settings
+            this.configVersion = configuration.getInt("version", 0);
             this.language = configuration.getString("language");
             this.startTimeout = configuration.getInt("startTimeout");
             this.powerControllerType = configuration.getString("powerControllerType");
@@ -130,13 +142,24 @@ public class Config {
         }
 
         // Create config.yml if it does not exist
-        File file = new File(plugin.getDataFolder(), "config.yml");
+        return copyFileToDataFolder("config.yml");
+    }
+
+    /**
+     * Copy a file from the plugin's resources to the data folder
+     *
+     * @param fileName The file name in the data folder
+     * @return The file
+     * @throws IOException If an I/O error occurs
+     */
+    public static File copyFileToDataFolder(String fileName) throws IOException {
+        // Create config.yml if it does not exist
+        File file = new File(plugin.getDataFolder(), fileName);
         if (!file.exists()) {
-            try (InputStream in = plugin.getResourceAsStream("config.yml")) {
+            try (InputStream in = plugin.getResourceAsStream(fileName)) {
                 Files.copy(in, file.toPath());
             }
         }
-
         return file;
     }
 
@@ -156,6 +179,21 @@ public class Config {
      * Validate configuration
      */
     public void validateConfig(CommandSender sender) {
+        // Validate the config version
+        if (configVersion != CONFIG_VERSION) {
+            sender.sendMessage(plugin.messages.prefix().append(String.format("Warning: Your config.yml is outdated (required version: %d, your version: %d).", CONFIG_VERSION, configVersion)).create());
+            try {
+                // Create/Overwrite config.new.yml
+                File file = new File(plugin.getDataFolder(), "config.new.yml");
+                try (InputStream in = plugin.getResourceAsStream("config.yml")) {
+                    Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+                sender.sendMessage(plugin.messages.prefix().append("Warning: Check the new config.new.yml and update your config.yml. After that, set the 'version' to " + CONFIG_VERSION + ".").create());
+            } catch (IOException e) {
+                sender.sendMessage(plugin.messages.prefix().append("Warning: Check the new config.yml in plugin jar file and update your config.yml. After that, set the 'version' to " + CONFIG_VERSION + ".").create());
+            }
+        }
+
         // Validate the pterodactyl URL
         if (pterodactylUrl == null) {
             sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl URL in the configuration is not set.").create());

@@ -47,6 +47,19 @@ public class PteroCommand extends Command implements TabExecutor {
                 sender.sendMessage(plugin.messages.success("command_config_reloaded"));
 
                 break;
+            case "check":
+                // Permission check
+                if (!sender.hasPermission("ptero.reload")) {
+                    sender.sendMessage(plugin.messages.error("command_insufficient_permission"));
+                    return;
+                }
+
+                // Validate config.yml
+                Config config = new Config();
+                config.validateConfig(sender);
+                sender.sendMessage(plugin.messages.success("command_config_checked"));
+
+                break;
             case "start":
             case "stop": {
                 // args[1] is the server name
@@ -109,8 +122,13 @@ public class PteroCommand extends Command implements TabExecutor {
             List<String> completions = new ArrayList<>();
             String partialCommand = subCommand.toLowerCase();
 
-            if ("reload".startsWith(partialCommand) && sender.hasPermission("ptero.reload")) {
-                completions.add("reload");
+            if (sender.hasPermission("ptero.reload")) {
+                if ("reload".startsWith(partialCommand)) {
+                    completions.add("reload");
+                }
+                if ("check".startsWith(partialCommand)) {
+                    completions.add("check");
+                }
             }
 
             if ("start".startsWith(partialCommand)) {

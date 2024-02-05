@@ -10,7 +10,6 @@ import net.md_5.bungee.config.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 
 import static com.kamesuta.bungeepteropower.BungeePteroPower.logger;
 import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
@@ -46,12 +45,8 @@ public class Messages {
                 plugin.getDataFolder().mkdir();
             }
 
-            File file = new File(plugin.getDataFolder(), "messages_" + language + ".yml");
-            if (!file.exists()) {
-                try (InputStream in = plugin.getResourceAsStream("messages_" + language + ".yml")) {
-                    Files.copy(in, file.toPath());
-                }
-            }
+            // Create messages.yml if it does not exist
+            File file = Config.copyFileToDataFolder("messages_" + language + ".yml");
 
             // Load messages.yml
             Configuration messages = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
@@ -86,7 +81,7 @@ public class Messages {
     /**
      * Get translated message
      *
-     * @param key Message key
+     * @param key  Message key
      * @param args Message arguments
      * @return Translated message
      */
