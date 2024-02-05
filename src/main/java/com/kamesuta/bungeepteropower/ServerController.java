@@ -33,7 +33,7 @@ public class ServerController {
 
         // Send signal
         plugin.config.getPowerController().sendPowerSignal(serverName, serverId, signalType).thenRun(() -> {
-            if (sender instanceof ProxyServer && plugin.config.startupJoinTimeout > 0) {
+            if (sender instanceof ProxiedPlayer && plugin.config.startupJoinTimeout > 0) {
                 // If auto join is configured, join the server when it is started
                 sender.sendMessage(plugin.messages.success("server_startup_join", serverName));
                 ServerInfo serverInfo = plugin.getProxy().getServerInfo(serverName);
