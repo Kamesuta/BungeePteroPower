@@ -41,7 +41,7 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
       url: "https://panel.example.com"
       # The client api key of your pterodactyl panel. It starts with "ptlc_".
       # You can find the client api key in the "API Credentials" tab of the "Account" page.
-      apikey: "ptlc_000000000000000000000000000000000000000000"
+      apiKey: "ptlc_000000000000000000000000000000000000000000"
     
     # Per server configuration
     servers:
@@ -113,7 +113,7 @@ The `config.yml` file includes the following settings, but not all items need to
 - `pterodactyl`: Configure settings for Pterodactyl, including URL and API key.
     - `url`: Set the URL of your Pterodactyl panel. (Example: https://panel.example.com/)
         - If you are using services like Cloudflare Tunnel, ensure proper bypass settings for IP-based communication.
-    - `apikey`: Set the client API key for Pterodactyl.
+    - `apiKey`: Set the client API key for Pterodactyl.
         - It begins with `ptlc_`.
         - Client API keys for Pterodactyl can be found in the "API Credentials" tab on the account page.
 

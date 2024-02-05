@@ -28,7 +28,7 @@ pterodactyl:
   url: "https://panel.example.com"
   # The client api key of your pterodactyl panel. It starts with "ptlc_".
   # You can find the client api key in the "API Credentials" tab of the "Account" page.
-  apikey: "ptlc_000000000000000000000000000000000000000000"
+  apiKey: "ptlc_000000000000000000000000000000000000000000"
 
 # Per server configuration
 servers:

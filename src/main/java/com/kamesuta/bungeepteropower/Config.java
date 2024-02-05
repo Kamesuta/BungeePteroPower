@@ -88,7 +88,7 @@ public class Config {
 
             // Pterodactyl API credentials
             this.pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
-            this.pterodactylApiKey = configuration.getString("pterodactyl.apikey");
+            this.pterodactylApiKey = configuration.getString("pterodactyl.apiKey");
 
             // Bungeecord server name -> Pterodactyl server ID list
             serverIdMap = new HashMap<>();

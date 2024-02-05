@@ -41,7 +41,7 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
       url: "https://panel.example.com"
       # Pterodactyl パネルのクライアント API キー。"ptlc_" で始まります。
       # クライアント API キーは、「アカウント」ページの「API 資格情報」タブで見つけることができます。
-      apikey: "ptlc_000000000000000000000000000000000000000000"
+      apiKey: "ptlc_000000000000000000000000000000000000000000"
     
     # サーバーごとの設定
     servers:
@@ -113,7 +113,7 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
 - `pterodactyl`: Pterodactylの設定を行います。URLとAPIキーを設定します。
     - `url`: ご自身のPterodactylパネルのURLを設定します。(例: https://panel.example.com/)
         - Cloudflare Tunnelなどを使用している場合は、通信できるようにIPによるバイパス設定を行ってください。
-    - `apikey`: PterodactylのクライアントAPIキーを設定します。
+    - `apiKey`: PterodactylのクライアントAPIキーを設定します。
         - `ptlc_`から始まる文字列です。
         - PterodactylのクライアントAPIキーは、アカウントページの「API Credentials」タブから確認できます。
 
