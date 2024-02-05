@@ -10,11 +10,12 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.time.Instant;
 
 import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
 
@@ -77,31 +78,31 @@ public class PteroCommand extends Command implements TabExecutor {
                         : PterodactylAPI.PowerSignal.STOP;
 
                 // Cancel existing stop task
-                if (signal == PterodactylAPI.PowerSignal.STOP)
+                if (signal == PterodactylAPI.PowerSignal.STOP) {
                     plugin.delay.cancelStop(serverName);
-
-                boolean autoJoin = subCommand.equals("start") && args.length >= 3 && args[2].equals("join") && sender instanceof ProxiedPlayer;
+                }
 
                 // Send signal
-                PterodactylAPI.sendPowerSignal(serverName, serverId, signal).thenRun(() ->{
-
-                    if (autoJoin) {
+                PterodactylAPI.sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
+                    if (sender instanceof ProxyServer && plugin.config.startupJoinTimeout > 0) {
+                        // If auto join is configured, join the server when it is started
                         sender.sendMessage(plugin.messages.success("command_server_start_autojoin", serverName));
                         ServerInfo serverInfo = plugin.getProxy().getServerInfo(serverName);
-                        onceStarted(serverInfo).thenRun(()-> {
-                            ProxiedPlayer player = (ProxiedPlayer)sender;
+                        onceStarted(serverInfo).thenRun(() -> {
+                            // Move player to the started server
+                            ProxiedPlayer player = (ProxiedPlayer) sender;
                             player.connect(serverInfo);
-                        }).exceptionally((Throwable e)-> {
+                        }).exceptionally((Throwable e) -> {
                             sender.sendMessage(plugin.messages.warning("command_server_start_autojoin_warning", serverName));
                             return null;
                         });
-                    }
-                    else
+                    } else {
+                        // Otherwise, just send a message
                         sender.sendMessage(plugin.messages.success("command_server_" + subCommand, serverName));
+                    }
 
                     // Start auto stop task and send warning
-                    if (subCommand.equals("start"))
-                    {
+                    if (signal == PterodactylAPI.PowerSignal.START) {
                         // Get the auto stop time
                         Integer serverTimeout = plugin.config.getServerTimeout(serverName);
                         if (serverTimeout != null && serverTimeout >= 0) {
@@ -164,23 +165,29 @@ public class PteroCommand extends Command implements TabExecutor {
         return ImmutableList.of();
     }
 
-    private CompletableFuture<Void> onceStarted(ServerInfo serverInfo) {
+    private static CompletableFuture<Void> onceStarted(ServerInfo serverInfo) {
         CompletableFuture<Void> future = new CompletableFuture<Void>();
 
-        Instant timeout = Instant.now().plusSeconds(plugin.config.autoJoinTimeout);
+        // The timestamp when the server is expected to be started within
+        Instant timeout = Instant.now().plusSeconds(plugin.config.startupJoinTimeout);
 
-        Callback<ServerPing> callback = new Callback<ServerPing>() {
+        Callback<ServerPing> callback = new Callback<>() {
             @Override
             public void done(ServerPing serverPing, Throwable throwable) {
+                // If the server is started, complete the future
                 if (throwable == null && serverPing != null) {
                     future.complete(null);
                     return;
                 }
+                // Not started yet, retry after a while
                 if (Instant.now().isBefore(timeout)) {
-                    serverInfo.ping(this);
+                    ProxyServer.getInstance().getScheduler()
+                            .schedule(plugin, () -> serverInfo.ping(this), plugin.config.pingInterval, TimeUnit.SECONDS);
                     return;
                 }
-                future.completeExceptionally(null);
+
+                // If the server is not started within the timeout, complete the future exceptionally
+                future.completeExceptionally(new RuntimeException("Server did not start in autoJoinTimeout"));
             }
         };
         serverInfo.ping(callback);
