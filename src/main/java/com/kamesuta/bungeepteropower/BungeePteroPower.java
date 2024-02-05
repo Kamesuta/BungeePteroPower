@@ -58,6 +58,13 @@ public final class BungeePteroPower extends Plugin implements Listener, BungeePt
         plugin = this;
         logger = getLogger();
 
+        // Logo and version (To make it easier to find config warnings)
+        logger.info("\n" +
+            "___  _  _ _  _ ____ ____ ____ ___  ___ ____ ____ ____ ___  ____ _ _ _ ____ ____ \n" +
+            "|__] |  | |\\ | | __ |___ |___ |__]  |  |___ |__/ |  | |__] |  | | | | |___ |__/ \n" +
+            "|__] |__| | \\| |__] |___ |___ |     |  |___ |  \\ |__| |    |__| |_|_| |___ |  \\ \n" +
+            "                    BungeePteroPower v" + getDescription().getVersion() + " by Kamesuta\n");
+        
         // Load messages.yml
         fallbackMessages = Messages.loadFromResource("en");
         // Load config and translations
@@ -66,6 +73,9 @@ public final class BungeePteroPower extends Plugin implements Listener, BungeePt
         // Create PowerController map and register PterodactylController
         powerControllers = new ConcurrentHashMap<>();
         powerControllers.put("pterodactyl", new PterodactylController());
+
+        // Check config
+        config.validateConfig(getProxy().getConsole());
 
         // Create DelayManager
         delay = new DelayManager();
