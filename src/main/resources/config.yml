@@ -21,6 +21,16 @@ startTimeout: 120
 # You can add your own power controller using API.
 powerControllerType: pterodactyl
 
+# This is used to check the server status to transfer players after the server starts
+startupJoin:
+  # The number of seconds the plugin will try to connect the player to the desired server
+  # Set this to the maximum time the server can take to start
+  # If you set it to 0, the plugin will not try to connect the player to the server
+  timeout: 60
+
+  # The number of seconds between pings to check the server status
+  pingInterval: 3
+
 # Pterodactyl configuration
 pterodactyl:
   # The URL of your pterodactyl panel

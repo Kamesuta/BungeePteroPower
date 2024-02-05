@@ -50,6 +50,15 @@ public class Config {
      */
     public final String powerControllerType;
     /**
+     * The number of seconds the plugin will try to connect the player to the desired server
+     * Set this to the maximum time the server can take to start
+     */
+    public final int startupJoinTimeout;
+    /**
+     * The number of seconds between pings to check the server status
+     */
+    public final int pingInterval;
+    /**
      * Pterodactyl API URL
      */
     public final URI pterodactylUrl;
@@ -85,6 +94,10 @@ public class Config {
             this.language = configuration.getString("language");
             this.startTimeout = configuration.getInt("startTimeout");
             this.powerControllerType = configuration.getString("powerControllerType");
+
+            // Startup join settings
+            this.startupJoinTimeout = configuration.getInt("startupJoin.timeout");
+            this.pingInterval = configuration.getInt("startupJoin.pingInterval");
 
             // Pterodactyl API credentials
             this.pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
