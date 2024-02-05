@@ -1,4 +1,7 @@
-package com.kamesuta.bungeepteropower;
+package com.kamesuta.bungeepteropower.power;
+
+import com.kamesuta.bungeepteropower.api.PowerController;
+import com.kamesuta.bungeepteropower.api.PowerSignal;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -13,7 +16,7 @@ import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
 /**
  * Pterodactyl API client.
  */
-public class PterodactylAPI {
+public class PterodactylController implements PowerController {
     /**
      * Send a power signal to the Pterodactyl server.
      *
@@ -22,8 +25,10 @@ public class PterodactylAPI {
      * @param signal              The power signal to send
      * @return A future that completes when the request is finished
      */
-    public static CompletableFuture<Void> sendPowerSignal(String serverName, String pterodactylServerId, PowerSignal signal) {
-        String doing = signal == PowerSignal.START ? "Starting" : "Stopping";
+    @Override
+    public CompletableFuture<Void> sendPowerSignal(String serverName, String pterodactylServerId, PowerSignal signalType) {
+        String signal = getSignal(signalType);
+        String doing = signalType == PowerSignal.START ? "Starting" : "Stopping";
         logger.info(String.format("%s server: %s (Pterodactyl server ID: %s)", doing, serverName, pterodactylServerId));
 
         // Create a path
@@ -32,7 +37,7 @@ public class PterodactylAPI {
         HttpClient client = HttpClient.newHttpClient();
 
         // Create a form body to send power signal
-        String formBody = "signal=" + signal.signal;
+        String formBody = "signal=" + signal;
 
         // Create a request
         HttpRequest request = HttpRequest.newBuilder()
@@ -48,17 +53,17 @@ public class PterodactylAPI {
                 .thenAccept(status -> {
                     int code = status.statusCode();
                     if (code >= 200 && code < 300) {
-                        logger.info("Successfully " + signal.signal + " server: " + serverName);
+                        logger.info("Successfully " + signal + " server: " + serverName);
                         future.complete(null);
                     } else {
-                        String message = "Failed to " + signal.signal + " server: " + serverName + ". Response code: " + code;
+                        String message = "Failed to " + signal + " server: " + serverName + ". Response code: " + code;
                         logger.warning(message);
                         logger.info("Request: " + request + ", Response: " + code + " " + status.body());
                         future.completeExceptionally(new RuntimeException(message));
                     }
                 })
                 .exceptionally(e -> {
-                    logger.log(Level.WARNING, "Failed to " + signal.signal + " server: " + serverName, e);
+                    logger.log(Level.WARNING, "Failed to " + signal + " server: " + serverName, e);
                     future.completeExceptionally(e);
                     return null;
                 });
@@ -66,21 +71,14 @@ public class PterodactylAPI {
         return future;
     }
 
-    /**
-     * Power signal type.
-     */
-    public enum PowerSignal {
-        START("start"),
-        STOP("stop"),
-        ;
-
-        /**
-         * The signal string to send to the Pterodactyl server.
-         */
-        public final String signal;
-
-        PowerSignal(String signal) {
-            this.signal = signal;
+    private String getSignal(PowerSignal signal) {
+        switch (signal) {
+            case START:
+                return "start";
+            case STOP:
+                return "stop";
+            default:
+                throw new IllegalArgumentException("Unknown signal: " + signal);
         }
     }
 }

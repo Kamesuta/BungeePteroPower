@@ -1,5 +1,6 @@
 package com.kamesuta.bungeepteropower;
 
+import com.kamesuta.bungeepteropower.api.PowerController;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -13,10 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.kamesuta.bungeepteropower.BungeePteroPower.logger;
@@ -35,6 +33,11 @@ public class Config {
      * the server will be stopped after this time has elapsed according to the timeout setting.
      */
     public final int startTimeout;
+    /**
+     * The type of the power controller
+     * (e.g. "pterodactyl")
+     */
+    public final String powerControllerType;
     /**
      * Pterodactyl API URL
      */
@@ -69,6 +72,7 @@ public class Config {
             // Basic settings
             this.language = configuration.getString("language");
             this.startTimeout = configuration.getInt("startTimeout");
+            this.powerControllerType = configuration.getString("powerControllerType");
 
             // Pterodactyl API credentials
             this.pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
@@ -137,6 +141,18 @@ public class Config {
     }
 
     /**
+     * Get power controller by name
+     *
+     * @return The power controller, or null if not found
+     */
+    public PowerController getPowerController() {
+        Objects.requireNonNull(powerControllerType, "Power controller type is not set");
+        PowerController powerController = plugin.powerControllers.get(powerControllerType);
+        Objects.requireNonNull(powerController, "No power controller found for type: " + powerControllerType);
+        return powerController;
+    }
+
+    /**
      * Validate configuration
      */
     public void validateConfig(CommandSender sender) {
@@ -165,6 +181,14 @@ public class Config {
                 .collect(Collectors.toList());
         if (!invalidServerNames.isEmpty()) {
             sender.sendMessage(plugin.messages.prefix().append(String.format("Warning: The following server names in the configuration are not found in the BungeeCord server list: %s", String.join(", ", invalidServerNames))).create());
+        }
+
+        // Check if the power controller is registered
+        if (plugin.config.powerControllerType == null) {
+            sender.sendMessage(plugin.messages.prefix().append("Warning: The power controller type in the configuration is not set.").create());
+        }
+        if (plugin.powerControllers.get(plugin.config.powerControllerType) == null) {
+            sender.sendMessage(plugin.messages.prefix().append(String.format("Warning: The power controller type '%s' in the configuration is not registered.", plugin.config.powerControllerType)).create());
         }
     }
 }

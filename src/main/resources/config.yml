@@ -12,6 +12,11 @@ language: en
 # the server will be stopped after this time has elapsed according to the timeout setting.
 startTimeout: 120
 
+# Power Controller Type
+# Supported types: pterodactyl
+# You can add your own power controller using API.
+powerControllerType: pterodactyl
+
 # Pterodactyl configuration
 pterodactyl:
   # The URL of your pterodactyl panel

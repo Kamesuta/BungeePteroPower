@@ -1,6 +1,8 @@
 package com.kamesuta.bungeepteropower;
 
 import com.google.common.collect.ImmutableList;
+import com.kamesuta.bungeepteropower.api.PowerSignal;
+import com.kamesuta.bungeepteropower.power.PterodactylController;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -68,12 +70,12 @@ public class PteroCommand extends Command implements TabExecutor {
                 }
 
                 // Signal
-                PterodactylAPI.PowerSignal signal = subCommand.equals("start")
-                        ? PterodactylAPI.PowerSignal.START
-                        : PterodactylAPI.PowerSignal.STOP;
+                PowerSignal signal = subCommand.equals("start")
+                        ? PowerSignal.START
+                        : PowerSignal.STOP;
 
                 // Send signal
-                PterodactylAPI.sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
+                plugin.config.getPowerController().sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
                     sender.sendMessage(plugin.messages.success("command_server_" + subCommand, serverName));
 
                     // Get the auto stop time

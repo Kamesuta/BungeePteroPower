@@ -1,5 +1,9 @@
 package com.kamesuta.bungeepteropower;
 
+import com.kamesuta.bungeepteropower.api.BungeePteroPowerAPI;
+import com.kamesuta.bungeepteropower.api.PowerController;
+import com.kamesuta.bungeepteropower.api.PowerSignal;
+import com.kamesuta.bungeepteropower.power.PterodactylController;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -16,12 +20,15 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
  * The BungeePteroPower plugin.
  */
-public final class BungeePteroPower extends Plugin implements Listener {
+public final class BungeePteroPower extends Plugin implements Listener, BungeePteroPowerAPI {
     public static Logger logger;
     public static BungeePteroPower plugin;
 
@@ -41,6 +48,10 @@ public final class BungeePteroPower extends Plugin implements Listener {
      * Delayed stop task manager
      */
     public DelayManager delay;
+    /**
+     * Power controllers
+     */
+    public Map<String, PowerController> powerControllers;
 
     @Override
     public void onEnable() {
@@ -51,6 +62,10 @@ public final class BungeePteroPower extends Plugin implements Listener {
         fallbackMessages = Messages.loadFromResource("en");
         // Load config and translations
         reload();
+
+        // Create PowerController map and register PterodactylController
+        powerControllers = new ConcurrentHashMap<>();
+        powerControllers.put("pterodactyl", new PterodactylController());
 
         // Create DelayManager
         delay = new DelayManager();
@@ -134,7 +149,7 @@ public final class BungeePteroPower extends Plugin implements Listener {
                     );
 
                     // Send power signal
-                    PterodactylAPI.sendPowerSignal(serverName, pterodactylServerId, PterodactylAPI.PowerSignal.START).thenRun(() -> {
+                    config.getPowerController().sendPowerSignal(serverName, pterodactylServerId, PowerSignal.START).thenRun(() -> {
                         player.sendMessage(plugin.messages.success("join_autostart", serverName));
 
                         // Get the auto stop time
@@ -149,7 +164,7 @@ public final class BungeePteroPower extends Plugin implements Listener {
                     }).exceptionally(e -> {
                         player.sendMessage(plugin.messages.error("join_failed_start", serverName));
                         return null;
-                        
+
                     });
 
                 } else {
@@ -209,5 +224,18 @@ public final class BungeePteroPower extends Plugin implements Listener {
             // Send message
             player.sendMessage(messages.info("leave_server_stopping", targetServer.getName(), serverTimeout));
         }
+    }
+
+    @Override
+    public void registerPowerController(String name, PowerController controller) {
+        Objects.requireNonNull(name, "Name cannot be null");
+        Objects.requireNonNull(controller, "Controller cannot be null");
+        powerControllers.put(name, controller);
+    }
+
+    @Override
+    public void unregisterPowerController(String name) {
+        Objects.requireNonNull(name, "Name cannot be null");
+        powerControllers.remove(name);
     }
 }
