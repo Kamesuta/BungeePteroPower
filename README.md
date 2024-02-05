@@ -116,21 +116,31 @@ The `config.yml` file includes the following settings, but not all items need to
     - `apiKey`: Set the client API key for Pterodactyl.
         - It begins with `ptlc_`.
         - Client API keys for Pterodactyl can be found in the "API Credentials" tab on the account page.
-
-### Optional Settings
-
-- `language`: Set the language to be used. The default is English (`en`).
-    - Supported languages are as follows
-        - English (`en`)
-        - Japanese (`ja`)
-        - French (`fr`)
-- `startTimeout`: After starting a server with this plugin, it will stop the server if there are no players for a certain period. The unit is seconds.
-    - After starting, the server will stop after the `startTimeout` plus the server's timeout duration.
-    - Setting it to 1 keeps the server running until players join and leave.
 - `servers`: Configure settings for each server. Set the server ID and the time until automatic shutdown.
     - `id`: Set the server ID on Pterodactyl.
         - Server IDs on Pterodactyl can be found in the URL of the server page.
         - For example, if the URL is https://panel.example.com/server/1234abcd, the server ID is 1234abcd.
+
+### Optional Settings
+
+- `version`: Set the version of the plugin.
+    - When updating the plugin, a warning will be displayed if this value does not match the plugin version.
+    - A `config.new.yml` file will be generated, and manual migration of settings using a merge tool is required.
+    - After migration, please change this value to the new version.
+- `language`: Set the language to be used. The default is English (`en`).
+    - Refer to the comments in the [config file](./src/main/resources/config.yml) for supported languages.
+- `startTimeout`: After starting a server with this plugin, it will stop the server if there are no players for a certain period. The unit is seconds.
+    - After starting, the server will stop after the `startTimeout` plus the server's timeout duration.
+    - Setting it to 1 keeps the server running until players join and leave.
+- `powerControllerType`: Set the type of power controller to be used.
+    - The built-in PowerController currently supports only `pterodactyl`, which operates Pterodactyl.
+    - By adding add-ons, you can add your own custom PowerController.
+- `startupJoin`: After server startup, it is used to automatically join players to the server and check the server's status.
+    - `timeout`: Set the maximum waiting time for players to join after server startup.
+        - Set this value to the maximum time it takes for the server to start.
+        - Setting it to 0 disables this feature, and players will not automatically join after startup.
+    - `pingInterval`: Set the interval for checking the server's status.
+- `servers`: Configure settings for each server. Set the server ID and the time until automatic shutdown.
     - `timeout`: When there are no players on the server, it will stop after a certain period. The unit is seconds.
 
 ### Permission Settings
@@ -153,6 +163,20 @@ BungeePteroPower plugin allows fine-grained control over commands available to p
 - Contributions via Pull Requests for additional language files are welcome.
 
 ## Information for Plugin Developers
+
+### About Power Controllers
+
+BungeePteroPower provides a Power Controller API for supporting platforms other than Pterodactyl.  
+By creating add-ons, you can add power controllers for platforms other than Pterodactyl!
+
+We also welcome pull requests for adding built-in power controllers!  
+Ideally, we would like to support the following:
+- Power controllers that can start servers locally
+- Power controllers compatible with management software other than Pterodactyl.  
+    For example, we would like to support the following:
+    - Minecraft Server Manager
+    - MCSManager
+    - MC Server Soft
 
 ### Creating Add-ons
 
