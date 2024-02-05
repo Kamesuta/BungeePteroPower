@@ -38,7 +38,7 @@ public class ServerController {
                 onceStarted(serverInfo).thenRun(() -> {
                     // Move player to the started server
                     ProxiedPlayer player = (ProxiedPlayer) sender;
-                    player.connect(serverInfo);
+                    plugin.getProxy().getScheduler().schedule(plugin, ()->player.connect(serverInfo), 5, TimeUnit.SECONDS);
                 }).exceptionally((Throwable e) -> {
                     sender.sendMessage(plugin.messages.warning("server_startup_join_warning", serverName));
                     return null;
