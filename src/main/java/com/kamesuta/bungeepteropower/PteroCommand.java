@@ -101,14 +101,14 @@ public class PteroCommand extends Command implements TabExecutor {
                 plugin.config.getPowerController().sendPowerSignal(serverName, serverId, signal).thenRun(() -> {
                     if (sender instanceof ProxyServer && plugin.config.startupJoinTimeout > 0) {
                         // If auto join is configured, join the server when it is started
-                        sender.sendMessage(plugin.messages.success("command_server_start_autojoin", serverName));
+                        sender.sendMessage(plugin.messages.success("command_server_startup_join", serverName));
                         ServerInfo serverInfo = plugin.getProxy().getServerInfo(serverName);
                         onceStarted(serverInfo).thenRun(() -> {
                             // Move player to the started server
                             ProxiedPlayer player = (ProxiedPlayer) sender;
                             player.connect(serverInfo);
                         }).exceptionally((Throwable e) -> {
-                            sender.sendMessage(plugin.messages.warning("command_server_start_autojoin_warning", serverName));
+                            sender.sendMessage(plugin.messages.warning("command_server_startup_join_warning", serverName));
                             return null;
                         });
                     } else {
