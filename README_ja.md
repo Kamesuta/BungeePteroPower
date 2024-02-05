@@ -1,6 +1,7 @@
 # BungeePteroPower
 ![LogoArt](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/e8914f79-806b-436c-a0e6-e4eaf8ad5eca)  
 [![Spigotmc Available](https://img.shields.io/badge/Spigotmc-ダウンロード-green)](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/)
+[![JitPack](https://jitpack.io/v/Kamesuta/BungeePteroPower.svg)](https://jitpack.io/#Kamesuta/BungeePteroPower)
 
 BungeePteroPowerは、サーバーの人数に応じてサーバーを自動的に起動/終了することができるプラグインです。  
 プレイヤーがBungeecordプロキシサーバーに参加または退出したときに、[Pterodactylパネル](https://pterodactyl.io/)上のサーバーを起動および停止することができます。  
@@ -150,3 +151,61 @@ BungeePteroPowerプラグインでは、パーミッションを使用して、�
 - 起動すると、`config.yml`の `language` で設定した言語のファイルが生成されます。
 - 編集してから `/ptero reload` コマンドで再読み込みすることで、プラグインの言語を変更できます。
 - Pull Requestで言語ファイルを追加していただけると嬉しいです。
+
+## プラグインの開発者向け情報
+
+### アドオンを作成する
+
+- BungeePteroPowerは、他のプラグインと連携するためのAPIを提供しています。
+    - Pterodactyl以外に対応したい場合は、APIを実装することで対応可能です。
+- 依存関係を追加することで、BungeePteroPowerのAPIを使用できます。
+    1. アドオン内のpom.xml内にJitPackリポジトリを追加します
+        ```xml
+        <repositories>
+            <repository>
+                <id>jitpack.io</id>
+                <url>https://jitpack.io</url>
+            </repository>
+        </repositories>
+        ```
+    2. BungeePteroPowerを依存関係に追加します
+        ```xml
+        <dependency>
+            <groupId>com.github.Kamesuta</groupId>
+            <artifactId>BungeePteroPower</artifactId>
+            <version>バージョン</version>
+        </dependency>
+        ```
+    3. bungee.ymlに依存関係を追加します
+        ```yml
+        depends:
+          - BungeePteroPower
+        ```
+    4. APIを使用します
+        ```java
+        import com.kamesuta.bungeepteropower.api.BungeePteroPowerAPI;
+
+        public class YourPlugin extends JavaPlugin {
+            @Override
+            public void onEnable() {
+                // BungeePteroPowerAPIのインスタンスを取得します
+                BungeePteroPowerAPI api = BungeePteroPowerAPI.getInstance();
+                // カスタムPowerControllerを登録します
+                api.registerPowerController("your_service", new YourPowerController());
+            }
+        }
+        ```
+- あなたのPowerControllerをBungeePteroPowerに追加してほしい場合は、プルリクエストを送ってください。
+
+### ビルド
+
+BungeePteroPowerではプルリクエストを歓迎しています。  
+以下の手順でビルドできます。  
+
+```bash
+git clone https://github.com/Kamesuta/BungeePteroPower.git
+cd BungeePteroPower
+mvn install
+```
+- このプラグインは、Java 11 以上でビルドする必要があります。
+- ビルド後、`target` ディレクトリに `BungeePteroPower-<バージョン>.jar` ファイルが生成されます。

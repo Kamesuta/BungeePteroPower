@@ -6,7 +6,7 @@
 
     <groupId>com.kamesuta</groupId>
     <artifactId>BungeePteroPower</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BungeePteroPower</name>

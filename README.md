@@ -1,6 +1,7 @@
 # BungeePteroPower
 ![LogoArt](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/e8914f79-806b-436c-a0e6-e4eaf8ad5eca)  
 [![Spigotmc Available](https://img.shields.io/badge/Spigotmc-Download-green)](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/)
+[![JitPack](https://jitpack.io/v/Kamesuta/BungeePteroPower.svg)](https://jitpack.io/#Kamesuta/BungeePteroPower)
 
 BungeePteroPower is a plugin that can automatically start/stop servers based on the number of players.  
 It can start and stop servers on the [Pterodactyl panel](https://pterodactyl.io/) when players join or leave the Bungeecord proxy server.  
@@ -150,3 +151,61 @@ BungeePteroPower plugin allows fine-grained control over commands available to p
 - Upon startup, a file for the language set in `config.yml` will be generated.
 - You can edit and then reload the plugin's language by using the `/ptero reload` command.
 - Contributions via Pull Requests for additional language files are welcome.
+
+## Information for Plugin Developers
+
+### Creating Add-ons
+
+- BungeePteroPower provides an API for integration with other plugins.
+    - If you want to support platforms other than Pterodactyl, it is possible by implementing the API.
+- You can use the BungeePteroPower API by adding dependencies.
+    1. Add the JitPack repository inside the pom.xml of your add-on:
+        ```xml
+        <repositories>
+            <repository>
+                <id>jitpack.io</id>
+                <url>https://jitpack.io</url>
+            </repository>
+        </repositories>
+        ```
+    2. Add BungeePteroPower as a dependency:
+        ```xml
+        <dependency>
+            <groupId>com.github.Kamesuta</groupId>
+            <artifactId>BungeePteroPower</artifactId>
+            <version>version</version>
+        </dependency>
+        ```
+    3. Add the dependency to your plugin.yml:
+        ```yml
+        depends:
+          - BungeePteroPower
+        ```
+    4. Use the API:
+        ```java
+        import com.kamesuta.bungeepteropower.api.BungeePteroPowerAPI;
+
+        public class YourPlugin extends JavaPlugin {
+            @Override
+            public void onEnable() {
+                // Get an instance of BungeePteroPowerAPI
+                BungeePteroPowerAPI api = BungeePteroPowerAPI.getInstance();
+                // Register your custom PowerController
+                api.registerPowerController("your_service", new YourPowerController());
+            }
+        }
+        ```
+- If you want your PowerController to be added to BungeePteroPower, please send a pull request.
+
+### Building
+
+Pull requests are welcome for BungeePteroPower.  
+You can build it using the following steps:
+
+```bash
+git clone https://github.com/Kamesuta/BungeePteroPower.git
+cd BungeePteroPower
+mvn install
+```
+- This plugin needs to be built with Java 11 or higher.
+- After building, a `BungeePteroPower-<version>.jar` file will be generated in the `target` directory.
