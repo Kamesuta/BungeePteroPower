@@ -27,7 +27,7 @@ public class PterodactylController implements PowerController {
      */
     @Override
     public CompletableFuture<Void> sendPowerSignal(String serverName, String pterodactylServerId, PowerSignal signalType) {
-        String signal = getSignal(signalType);
+        String signal = signalType.getSignal();
         String doing = signalType == PowerSignal.START ? "Starting" : "Stopping";
         logger.info(String.format("%s server: %s (Pterodactyl server ID: %s)", doing, serverName, pterodactylServerId));
 
@@ -69,16 +69,5 @@ public class PterodactylController implements PowerController {
                 });
 
         return future;
-    }
-
-    private String getSignal(PowerSignal signal) {
-        switch (signal) {
-            case START:
-                return "start";
-            case STOP:
-                return "stop";
-            default:
-                throw new IllegalArgumentException("Unknown signal: " + signal);
-        }
     }
 }

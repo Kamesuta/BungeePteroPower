@@ -12,4 +12,15 @@ public enum PowerSignal {
      * Stop the server
      */
     STOP,
+    ;
+
+    /**
+     * Get the signal string.
+     * It is used in the language file and Pterodactyl API.
+     *
+     * @return The signal string
+     */
+    public String getSignal() {
+        return name().toLowerCase();
+    }
 }

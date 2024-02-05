@@ -140,8 +140,8 @@ public final class BungeePteroPower extends Plugin implements Listener, BungeePt
         }
 
         // Get the Pterodactyl server ID
-        String pterodactylServerId = config.getServerId(targetServer.getName());
-        if (pterodactylServerId == null) {
+        String serverId = config.getServerId(targetServer.getName());
+        if (serverId == null) {
             return;
         }
 
@@ -159,23 +159,7 @@ public final class BungeePteroPower extends Plugin implements Listener, BungeePt
                     );
 
                     // Send power signal
-                    config.getPowerController().sendPowerSignal(serverName, pterodactylServerId, PowerSignal.START).thenRun(() -> {
-                        player.sendMessage(plugin.messages.success("join_autostart", serverName));
-
-                        // Get the auto stop time
-                        Integer serverTimeout = config.getServerTimeout(serverName);
-                        if (serverTimeout != null && serverTimeout >= 0 && config.startTimeout >= 0) {
-                            // Stop the server after a while when no one enters the server
-                            delay.stopAfterWhile(serverName, config.startTimeout + serverTimeout);
-                            // Send message
-                            player.sendMessage(messages.info("join_autostart_warning", serverName, config.startTimeout + serverTimeout));
-                        }
-
-                    }).exceptionally(e -> {
-                        player.sendMessage(plugin.messages.error("join_failed_start", serverName));
-                        return null;
-
-                    });
+                    ServerController.sendPowerSignal(player, serverName, serverId, PowerSignal.START);
 
                 } else {
                     // Send message including the command to start the server
