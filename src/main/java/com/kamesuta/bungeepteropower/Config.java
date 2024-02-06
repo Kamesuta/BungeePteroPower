@@ -55,6 +55,12 @@ public class Config {
      */
     public final int startupJoinTimeout;
     /**
+     * Once the server is pingable, wait the specified amount of seconds before sending the player to the server
+     * This is useful to wait for plugins like Luckperms to fully load
+     * If you set it to 0, the player will be connected as soon as the server is pingable
+     */
+    public final int joinDelay;
+    /**
      * The number of seconds between pings to check the server status
      */
     public final int pingInterval;
@@ -98,6 +104,7 @@ public class Config {
             // Startup join settings
             this.startupJoinTimeout = configuration.getInt("startupJoin.timeout");
             this.pingInterval = configuration.getInt("startupJoin.pingInterval");
+            this.joinDelay = configuration.getInt("startupJoin.joinDelay");
 
             // Pterodactyl API credentials
             this.pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));

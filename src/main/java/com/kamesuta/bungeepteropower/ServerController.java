@@ -38,7 +38,10 @@ public class ServerController {
                 onceStarted(serverInfo).thenRun(() -> {
                     // Move player to the started server
                     ProxiedPlayer player = (ProxiedPlayer) sender;
-                    plugin.getProxy().getScheduler().schedule(plugin, ()->player.connect(serverInfo), 5, TimeUnit.SECONDS);
+                    if (plugin.config.joinDelay > 0)
+                        plugin.getProxy().getScheduler().schedule(plugin, () -> player.connect(serverInfo), plugin.config.joinDelay, TimeUnit.SECONDS);
+                    else
+                        player.connect(serverInfo);
                 }).exceptionally((Throwable e) -> {
                     sender.sendMessage(plugin.messages.warning("server_startup_join_warning", serverName));
                     return null;
@@ -79,13 +82,16 @@ public class ServerController {
         Callback<ServerPing> callback = new Callback<ServerPing>() {
             @Override
             public void done(ServerPing serverPing, Throwable throwable) {
+                // Do nothing if timeout or already completed
                 if (future.isDone())
                     return;
+                // Complete if the ping was successful
                 if (throwable == null && serverPing != null) {
                     future.complete(null);
                     return;
                 }
-                plugin.getProxy().getScheduler().schedule(plugin, ()-> serverInfo.ping(this), plugin.config.pingInterval, TimeUnit.SECONDS);
+                // Otherwise schedule another ping
+                plugin.getProxy().getScheduler().schedule(plugin, () -> serverInfo.ping(this), plugin.config.pingInterval, TimeUnit.SECONDS);
             }
         };
         serverInfo.ping(callback);
