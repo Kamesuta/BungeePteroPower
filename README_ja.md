@@ -1,7 +1,10 @@
 # BungeePteroPower
 ![LogoArt](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/e8914f79-806b-436c-a0e6-e4eaf8ad5eca)  
-[![Spigotmc Available](https://img.shields.io/badge/Spigotmc-ダウンロード-green)](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/)
-[![JitPack](https://jitpack.io/v/Kamesuta/BungeePteroPower.svg)](https://jitpack.io/#Kamesuta/BungeePteroPower)
+[![License: MIT](https://img.shields.io/github/license/Kamesuta/BungeePteroPower?label=License)](LICENSE)
+[![Spigotmc Version](https://img.shields.io/spiget/version/114883?logo=spigotmc&label=Spigotmc%20Version)](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/)
+[![JitPack](https://img.shields.io/jitpack/version/com.github.Kamesuta/BungeePteroPower?logo=jitpack&label=JitPack)](https://jitpack.io/#Kamesuta/BungeePteroPower)  
+[![Spigotmc Downloads](https://img.shields.io/spiget/downloads/114883?logo=spigotmc&label=Spigotmc%20Downloads)](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/)
+[![bStats Servers](https://img.shields.io/bstats/servers/20917?label=bStats%20Servers)](https://bstats.org/plugin/bungeecord/BungeePteroPower/20917)  
 
 BungeePteroPowerは、サーバーの人数に応じてサーバーを自動的に起動/終了することができるプラグインです。  
 プレイヤーがBungeecordプロキシサーバーに参加または退出したときに、[Pterodactylパネル](https://pterodactyl.io/)上のサーバーを起動および停止することができます。  
@@ -139,6 +142,9 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
     - `timeout`: サーバー起動後、プレイヤーが参加するまでの最大待機時間を設定します。
         - この値をサーバーが起動するまでの最大時間を設定してください。
         - 0に設定すると、この機能はOFFになり、起動後にプレイヤーが自動参加することはなくなります。
+    - `joinDelay`: サーバーがping可能になった後、プレイヤーをサーバーに送る前に指定した秒数待機します。
+        - この遅延はLuckpermsなどのプラグインが完全に読み込まれるのを待つために役立ちます。
+        - 0に設定すると、サーバーがping可能になるとすぐにプレイヤーが接続されます。
     - `pingInterval`: サーバーのステータスをチェックする間隔を設定します。
 - `servers`: サーバーごとの設定を行います。サーバーIDと自動停止までの時間を設定します。
     - `timeout`: サーバーからプレイヤーがいなくなった際、一定時間プレイヤーがいない場合にサーバーを停止します。単位は秒です。
@@ -158,7 +164,11 @@ BungeePteroPowerプラグインでは、パーミッションを使用して、�
 
 ### 言語ファイルについて
 
-- 起動すると、`config.yml`の `language` で設定した言語のファイルが生成されます。
+- `config.yml`の `language` で言語を設定できます。
+    - 対応している言語は[コンフィグ内のコメント](./src/main/resources/config.yml)を参照してください。
+- 起動すると、コンフィグで設定した言語のファイルが生成されます。
+    - このファイルには、変更したいメッセージのみを定義することができます。
+    - 定義されていないメッセージはプラグイン内部の設定した言語ファイルから読み込まれます。
 - 編集してから `/ptero reload` コマンドで再読み込みすることで、プラグインの言語を変更できます。
 - Pull Requestで言語ファイルを追加していただけると嬉しいです。
 
@@ -233,3 +243,11 @@ mvn install
 ```
 - このプラグインは、Java 11 以上でビルドする必要があります。
 - ビルド後、`target` ディレクトリに `BungeePteroPower-<バージョン>.jar` ファイルが生成されます。
+
+## 統計データについて
+
+BungeePteroPowerは、[bStats](https://bstats.org/)を使用して匿名の統計データを収集しています。  
+統計データは[こちら](https://bstats.org/plugin/bungeecord/BungeePteroPower/20917)。
+
+bStatsは、プラグインの使用状況を把握するために使用され、プラグインの改善に役立てられます。  
+統計データの収集を無効にするには、`plugins/bStats/config.yml`の `enabled` を `false` に設定してください。

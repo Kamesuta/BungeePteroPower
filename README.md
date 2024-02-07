@@ -1,7 +1,10 @@
 # BungeePteroPower
 ![LogoArt](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/e8914f79-806b-436c-a0e6-e4eaf8ad5eca)  
-[![Spigotmc Available](https://img.shields.io/badge/Spigotmc-Download-green)](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/)
-[![JitPack](https://jitpack.io/v/Kamesuta/BungeePteroPower.svg)](https://jitpack.io/#Kamesuta/BungeePteroPower)
+[![License: MIT](https://img.shields.io/github/license/Kamesuta/BungeePteroPower?label=License)](LICENSE)
+[![Spigotmc Version](https://img.shields.io/spiget/version/114883?logo=spigotmc&label=Spigotmc%20Version)](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/)
+[![JitPack](https://img.shields.io/jitpack/version/com.github.Kamesuta/BungeePteroPower?logo=jitpack&label=JitPack)](https://jitpack.io/#Kamesuta/BungeePteroPower)  
+[![Spigotmc Downloads](https://img.shields.io/spiget/downloads/114883?logo=spigotmc&label=Spigotmc%20Downloads)](https://www.spigotmc.org/resources/%E2%9A%A1-bungeepteropower-%E2%9A%A1-start-stop-servers-when-player-join-leave.114883/)
+[![bStats Servers](https://img.shields.io/bstats/servers/20917?label=bStats%20Servers)](https://bstats.org/plugin/bungeecord/BungeePteroPower/20917)  
 
 BungeePteroPower is a plugin that can automatically start/stop servers based on the number of players.  
 It can start and stop servers on the [Pterodactyl panel](https://pterodactyl.io/) when players join or leave the Bungeecord proxy server.  
@@ -139,6 +142,9 @@ The `config.yml` file includes the following settings, but not all items need to
     - `timeout`: Set the maximum waiting time for players to join after server startup.
         - Set this value to the maximum time it takes for the server to start.
         - Setting it to 0 disables this feature, and players will not automatically join after startup.
+    - `joinDelay`: Once the server is pingable, wait the specified amount of seconds before sending the player to the server
+        - This is useful to wait for plugins like Luckperms to fully load
+        - If you set it to 0, the player will be connected as soon as the server is pingable
     - `pingInterval`: Set the interval for checking the server's status.
 - `servers`: Configure settings for each server. Set the server ID and the time until automatic shutdown.
     - `timeout`: When there are no players on the server, it will stop after a certain period. The unit is seconds.
@@ -158,7 +164,11 @@ BungeePteroPower plugin allows fine-grained control over commands available to p
 
 ### About Language Files
 
-- Upon startup, a file for the language set in `config.yml` will be generated.
+- You can set the language in config.yml using the language option.
+    - Please refer to the comments in the config file for the supported languages.
+- Upon startup, a file for the language set in config.yml will be generated.
+    - This file allows you to define only the messages you want to change.
+    - Messages that are not defined will be loaded from the language file set within the plugin.
 - You can edit and then reload the plugin's language by using the `/ptero reload` command.
 - Contributions via Pull Requests for additional language files are welcome.
 
@@ -233,3 +243,11 @@ mvn install
 ```
 - This plugin needs to be built with Java 11 or higher.
 - After building, a `BungeePteroPower-<version>.jar` file will be generated in the `target` directory.
+
+## About Statistics Data
+
+BungeePteroPower collects anonymous statistical data using [bStats](https://bstats.org/).
+You can find the statistics data [here](https://bstats.org/plugin/bungeecord/BungeePteroPower/20917).
+
+bStats is used to understand the usage of the plugin and help improve it.
+To disable the collection of statistical data, please set `enabled` to `false` in `plugins/bStats/config.yml`
