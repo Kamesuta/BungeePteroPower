@@ -1,6 +1,5 @@
 package com.kamesuta.bungeepteropower;
 
-import com.kamesuta.bungeepteropower.api.PowerSignal;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 
@@ -26,14 +25,9 @@ public class DelayManager {
      *
      * @param serverName The name of the server to stop
      * @param timeout    The time in seconds to stop the server
+     * @param callback   The callback to be executed after the server is stopped
      */
-    public void stopAfterWhile(String serverName, int timeout) {
-        // Get the Pterodactyl server ID
-        String pterodactylServerId = plugin.config.getServerId(serverName);
-        if (pterodactylServerId == null) {
-            return;
-        }
-
+    public void stopAfterWhile(String serverName, int timeout, Runnable callback) {
         // Cancel previous task
         cancelStop(serverName);
 
@@ -43,8 +37,8 @@ public class DelayManager {
             // Log
             logger.info(String.format("Scheduled task executed: stop server %s (task ID: %d, timeout: %d sec)", serverName, taskId.get(), timeout));
 
-            // Stop the target server
-            plugin.config.getPowerController().sendPowerSignal(serverName, pterodactylServerId, PowerSignal.STOP);
+            // Call the callback
+            callback.run();
 
             // Unregister the task
             serverStopTasks.remove(serverName);

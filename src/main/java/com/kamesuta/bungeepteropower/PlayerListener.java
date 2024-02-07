@@ -82,6 +82,10 @@ public class PlayerListener implements Listener {
                     // Send power signal
                     ServerController.sendPowerSignal(player, serverName, serverId, PowerSignal.START);
 
+                    // Record statistics
+                    plugin.statistics.actionCounter.increment(Statistics.ActionCounter.ActionType.START_SERVER_AUTOJOIN);
+                    plugin.statistics.startReasonRecorder.recordStart(serverName, Statistics.StartReasonRecorder.StartReason.AUTOJOIN);
+
                 } else {
                     // Send message including the command to start the server
                     player.sendMessage(plugin.messages.warning("join_start", serverName));
@@ -132,13 +136,15 @@ public class PlayerListener implements Listener {
         }
 
         // Get the auto stop time
-        Integer serverTimeout = plugin.config.getServerTimeout(targetServer.getName());
-        if (serverTimeout != null && serverTimeout >= 0) {
-            // Stop the server after a while
-            plugin.delay.stopAfterWhile(targetServer.getName(), serverTimeout);
-            // Send message
-            player.sendMessage(plugin.messages.info("leave_server_stopping", targetServer.getName(), serverTimeout));
+        String serverName = targetServer.getName();
+        // Get the Pterodactyl server ID
+        String serverId = plugin.config.getServerId(serverName);
+        if (serverId == null) {
+            return;
         }
+
+        // Stop the server when everyone leaves
+        ServerController.stopAfterWhile(player, serverName, serverId, PowerSignal.STOP);
     }
 
 }

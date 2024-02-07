@@ -6,8 +6,6 @@ join_start: "サーバー「%s」はサーバーリソースを節約するた�
 join_start_button: "[サーバー「%s」を起動]"
 join_start_button_tooltip: "クリックしてサーバー「%s」を起動！"
 
-leave_server_stopping: "あなたはサーバー「%s」の最後のプレイヤーです。サーバーリソース削減のため、%s秒後にサーバーを停止します。"
-
 command_usage: "/ptero <start|stop|reload> の形式で入力してください"
 command_start_usage: "/ptero start <server> の形式で入力してください"
 command_stop_usage: "/ptero stop <server> の形式で入力してください"
@@ -20,5 +18,6 @@ server_start_warning: "なお、起動したサーバー「%s」にプレイヤ�
 server_startup_join: "サーバー 「%s」を開始しています... 起動後に接続されるのでお待ちください。"
 server_startup_join_warning: "サーバー 「%s」 に自動的に接続できませんでした。"
 server_stop: "サーバー「%s」を停止中..."
+server_stop_warning: "あなたはサーバー「%s」の最後のプレイヤーです。サーバーリソース削減のため、%s秒後にサーバーを停止します。"
 server_failed_start: "サーバー「%s」の起動に失敗しました"
 server_failed_stop: "サーバー「%s」の停止に失敗しました"

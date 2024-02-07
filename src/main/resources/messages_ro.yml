@@ -6,8 +6,6 @@ join_start: "Serverul %s este suspendat pentru a reduce resursele, dar poate fi 
 join_start_button: "[Pornește serverul %s]"
 join_start_button_tooltip: "Faceți clic pentru a porni serverul %s!"
 
-leave_server_stopping: "Ești ultimul jucător pe serverul %s. Serverul va fi oprit în %s secunde pentru a reduce resursele."
-
 command_usage: "Utilizare: /ptero <start|stop|reload>"
 command_start_usage: "Utilizare: /ptero start <server>"
 command_stop_usage: "Utilizare: /ptero stop <server>"
@@ -20,5 +18,6 @@ server_start_warning: "Dacă serverul %s este lăsat nesupravegheat fără niciu
 server_startup_join: "Lansarea serverului '%s'... Vă rugăm să așteptați, deoarece veți fi conectat după pornire."
 server_startup_join_warning: "Nu s-a putut conecta automat la serverul '%s'."
 server_stop: "Se oprește serverul %s..."
+server_stop_warning: "Ești ultimul jucător pe serverul %s. Serverul va fi oprit în %s secunde pentru a reduce resursele."
 server_failed_start: "Nu s-a reușit pornirea serverului %s"
 server_failed_stop: "Nu s-a reușit oprirea serverului %s"

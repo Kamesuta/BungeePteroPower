@@ -6,8 +6,6 @@ join_start: "Le serveur %s est suspendu pour réduire les ressources du serveur,
 join_start_button: "[Démarrer le serveur %s]"
 join_start_button_tooltip: "Cliquez pour démarrer le serveur %s !"
 
-leave_server_stopping: "Vous êtes le dernier joueur sur le serveur %s. Le serveur sera arrêté dans %s secondes pour réduire les ressources du serveur."
-
 command_usage: "Utilisation: /ptero <start|stop|reload>"
 command_start_usage: "Utilisation: /ptero start <server>"
 command_stop_usage: "Utilisation: /ptero stop <server>"
@@ -20,5 +18,6 @@ server_start_warning: "Si le serveur %s est laissé sans surveillance sans qu'au
 server_startup_join: "Démarrage du serveur %s... Veuillez patienter jusqu'à ce que vous soyez connecté après le démarrage."
 server_startup_join_warning: "Nous n'avons pas pu vous connecter au serveur %s."
 server_stop: "Arrêt du serveur %s..."
+server_stop_warning: "Vous êtes le dernier joueur sur le serveur %s. Le serveur sera arrêté dans %s secondes pour réduire les ressources du serveur."
 server_failed_start: "Échec du démarrage du serveur %s"
 server_failed_stop: "Échec de l'arrêt du serveur %s"

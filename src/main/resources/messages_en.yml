@@ -6,8 +6,6 @@ join_start: "The server %s is suspended to reduce server resources, but it can b
 join_start_button: "[Start Server %s]"
 join_start_button_tooltip: "Click to start the server %s!"
 
-leave_server_stopping: "You are the last player on server %s. The server will be stopped in %s seconds to reduce server resources."
-
 command_usage: "Usage: /ptero <start|stop|reload>"
 command_start_usage: "Usage: /ptero start <server>"
 command_stop_usage: "Usage: /ptero stop <server>"
@@ -20,5 +18,6 @@ server_start_warning: "If the server %s is left unattended without any players j
 server_startup_join: "Starting server %s... Please wait you will be connected after it start."
 server_startup_join_warning: "We could not connect you automatically to the server %s."
 server_stop: "Stopping server %s..."
+server_stop_warning: "You are the last player on server %s. The server will be stopped in %s seconds to reduce server resources."
 server_failed_start: "Failed to start server %s"
 server_failed_stop: "Failed to stop server %s"

@@ -4,6 +4,7 @@ import com.kamesuta.bungeepteropower.api.BungeePteroPowerAPI;
 import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.power.PterodactylController;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +38,10 @@ public final class BungeePteroPower extends Plugin implements BungeePteroPowerAP
      * Power controllers
      */
     public Map<String, PowerController> powerControllers;
+    /**
+     * Statistics
+     */
+    public Statistics statistics;
 
     @Override
     public void onEnable() {
@@ -66,9 +71,15 @@ public final class BungeePteroPower extends Plugin implements BungeePteroPowerAP
         delay = new DelayManager();
 
         // Plugin startup logic
-        getProxy().getPluginManager().registerListener(this, new PlayerListener());
+        PluginManager pluginManager = getProxy().getPluginManager();
+        // Register the event listener
+        pluginManager.registerListener(this, new PlayerListener());
         // Register the /ptero reload command
-        getProxy().getPluginManager().registerCommand(this, new PteroCommand());
+        pluginManager.registerCommand(this, new PteroCommand());
+
+        // Statistics
+        statistics = new Statistics();
+        statistics.register();
     }
 
     /**
