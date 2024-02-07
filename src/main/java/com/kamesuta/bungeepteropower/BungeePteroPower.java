@@ -56,7 +56,7 @@ public final class BungeePteroPower extends Plugin implements BungeePteroPowerAP
                 "                    BungeePteroPower v" + getDescription().getVersion() + " by Kamesuta\n");
 
         // Load messages.yml
-        fallbackMessages = Messages.loadFromResource("en");
+        fallbackMessages = Messages.loadFromResource("en", null);
         // Load config and translations
         reload();
 
@@ -89,8 +89,17 @@ public final class BungeePteroPower extends Plugin implements BungeePteroPowerAP
         // Load config.yml
         config = new Config();
 
+        // Try to load messages.yml from resource
+        // This way, you only need to define the translation of the differences from the default language
+        Messages resourceMessages;
+        try {
+            resourceMessages = Messages.loadFromResource(config.language, fallbackMessages);
+        } catch (Exception e) {
+            // This is used when you add a language to the config that the plugin does not support by default
+            resourceMessages = fallbackMessages;
+        }
         // Load messages.yml
-        messages = Messages.load(config.language, fallbackMessages);
+        messages = Messages.load(config.language, resourceMessages);
     }
 
     @Override

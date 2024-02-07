@@ -36,6 +36,8 @@ public class Messages {
      * Load messages.yml
      *
      * @param language Language
+     *                 If the language is not found, the parent messages will be used
+     * @param parent   Parent messages
      * @return Messages
      */
     public static Messages load(String language, Messages parent) {
@@ -59,18 +61,20 @@ public class Messages {
     }
 
     /**
-     * Load fallback messages.yml from resource
+     * Load messages.yml from resource
      *
      * @param language Language
+     *                 If the language is not found, the parent messages will be used
+     * @param parent   Parent messages
      * @return Messages
      */
-    public static Messages loadFromResource(String language) {
+    public static Messages loadFromResource(String language, Messages parent) {
         try {
             // Load messages.yml
             try (InputStream in = plugin.getResourceAsStream("messages_" + language + ".yml")) {
                 Configuration messages = ConfigurationProvider.getProvider(YamlConfiguration.class).load(in);
 
-                return new Messages(messages, null);
+                return new Messages(messages, parent);
             }
         } catch (IOException e) {
             logger.severe("Failed to load fallback messages_" + language + ".yml");
@@ -86,7 +90,7 @@ public class Messages {
      * @return Translated message
      */
     public String getMessage(String key, Object... args) {
-        String rawMessage = this.messages.getString(key);
+        String rawMessage = this.messages.getString(key, null);
         if (rawMessage != null) {
             return String.format(rawMessage, args);
         } else if (parent != null) {
