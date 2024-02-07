@@ -246,8 +246,8 @@ mvn install
 
 ## About Statistics Data
 
-BungeePteroPower collects anonymous statistical data using [bStats](https://bstats.org/).
+BungeePteroPower collects anonymous statistical data using [bStats](https://bstats.org/).  
 You can find the statistics data [here](https://bstats.org/plugin/bungeecord/BungeePteroPower/20917).
 
-bStats is used to understand the usage of the plugin and help improve it.
+bStats is used to understand the usage of the plugin and help improve it.  
 To disable the collection of statistical data, please set `enabled` to `false` in `plugins/bStats/config.yml`
