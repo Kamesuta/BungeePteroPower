@@ -9,6 +9,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
@@ -104,7 +105,12 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = (byte) 1024)
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
         // Called when a player disconnect from proxy IN the target server
-        ServerInfo targetServer = event.getPlayer().getServer().getInfo();
+        Server server = event.getPlayer().getServer();
+        if (server == null) {
+            // Called when a player is kicked by a plugin or similar before joining the server (ex. VPNCheck plugin)
+            return;
+        }
+        ServerInfo targetServer = server.getInfo();
 
         onPlayerQuit(event.getPlayer(), targetServer);
     }
