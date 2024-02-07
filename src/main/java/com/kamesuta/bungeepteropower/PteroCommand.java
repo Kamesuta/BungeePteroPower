@@ -3,8 +3,6 @@ package com.kamesuta.bungeepteropower;
 import com.google.common.collect.ImmutableList;
 import com.kamesuta.bungeepteropower.api.PowerSignal;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
@@ -146,8 +144,7 @@ public class PteroCommand extends Command implements TabExecutor {
             String subCommand = args[0];
             if (subCommand.equalsIgnoreCase("start") || subCommand.equalsIgnoreCase("stop")) {
                 // Complete server names that the sender has permission to
-                return ProxyServer.getInstance().getServers().values().stream()
-                        .map(ServerInfo::getName)
+                return plugin.config.getServerNames().stream()
                         .filter(name -> name.startsWith(args[1]))
                         .filter(name -> sender.hasPermission("ptero." + subCommand + "." + name))
                         .filter(name -> plugin.config.getServerId(name) != null)
