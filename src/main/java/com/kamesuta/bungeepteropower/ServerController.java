@@ -50,22 +50,25 @@ public class ServerController {
                             ProxiedPlayer player = (ProxiedPlayer) sender;
                             player.connect(serverInfo);
                         }).exceptionally((Throwable e) -> {
-                            sender.sendMessage(plugin.messages.warning("server_startup_join_warning", serverName));
+                            sender.sendMessage(plugin.messages.warning("server_startup_join_failed", serverName));
                             return null;
                         });
                     }
 
                 } else {
                     // Otherwise, just send a message
-                    sender.sendMessage(plugin.messages.success("server_" + signal, serverName));
+                    sender.sendMessage(plugin.messages.success("server_start", serverName));
                 }
 
                 // Stop the server if nobody joins after a while
                 stopAfterWhile(sender, serverName, serverId, signalType);
+            } else {
+                // When stopping the server
+                sender.sendMessage(plugin.messages.success("server_stop", serverName));
             }
 
         }).exceptionally(e -> {
-            sender.sendMessage(plugin.messages.error("server_failed_" + signal, serverName));
+            sender.sendMessage(plugin.messages.error("server_" + signal + "_failed", serverName));
             return null;
 
         });
