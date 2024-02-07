@@ -47,9 +47,15 @@ public class ServerController {
                             // Move player to the started server
                             ProxiedPlayer player = (ProxiedPlayer) sender;
                             if (plugin.config.joinDelay > 0) {
+                                // Delay the join
                                 plugin.getProxy().getScheduler().schedule(plugin, () -> player.connect(serverInfo), plugin.config.joinDelay, TimeUnit.SECONDS);
+                                // Send a message
+                                player.sendMessage(plugin.messages.success("server_startup_join_move_delayed", serverName, plugin.config.joinDelay));
                             } else {
+                                // Join immediately
                                 player.connect(serverInfo);
+                                // Send a message
+                                player.sendMessage(plugin.messages.success("server_startup_join_move", serverName));
                             }
                         }).exceptionally((Throwable e) -> {
                             sender.sendMessage(plugin.messages.warning("server_startup_join_failed", serverName));
