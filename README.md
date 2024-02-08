@@ -229,6 +229,7 @@ Ideally, we would like to support the following:
             }
         }
         ```
+        For an example implementation of a PowerController for Pterodactyl, please refer to [PterodactylController.java](./src/main/java/com/kamesuta/bungeepteropower/power/PterodactylController.java).
 - If you want your PowerController to be added to BungeePteroPower, please send a pull request.
 
 ### Building

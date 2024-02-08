@@ -229,6 +229,7 @@ BungeePteroPowerは、Pterodactyl以外をサポートするためのパワー�
             }
         }
         ```
+        Pterodactyl向けのPowerControllerの実装例は、[PterodactylController.java](./src/main/java/com/kamesuta/bungeepteropower/power/PterodactylController.java)を参照してください。
 - あなたのPowerControllerをBungeePteroPowerに追加してほしい場合は、プルリクエストを送ってください。
 
 ### ビルド
