@@ -142,8 +142,8 @@ public class Config {
      * @param serverName The Bungeecord server name
      * @return The auto stop time
      */
-    public @Nullable Integer getServerTimeout(String serverName) {
-        return serverTimeoutMap.get(serverName);
+    public int getServerTimeout(String serverName) {
+        return serverTimeoutMap.getOrDefault(serverName, 0);
     }
 
     /**

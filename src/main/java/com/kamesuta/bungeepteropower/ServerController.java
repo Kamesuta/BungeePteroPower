@@ -31,49 +31,48 @@ public class ServerController {
 
         // Send signal
         plugin.config.getPowerController().sendPowerSignal(serverName, serverId, signalType).thenRun(() -> {
-            // Start auto stop task and send warning
-            if (signalType == PowerSignal.START) {
-                // If auto join is configured, join the server when it is started
-                if (sender instanceof ProxiedPlayer && plugin.config.startupJoinTimeout > 0) {
-                    // If auto join is configured, join the server when it is started
-                    sender.sendMessage(plugin.messages.success("server_startup_join", serverName));
-
-                    // Get the server info
-                    ServerInfo serverInfo = plugin.getProxy().getServerInfo(serverName);
-                    // ServerInfo is null if the server is not found on bungeecord config
-                    if (serverInfo != null) {
-                        // Wait until the server is started
-                        onceStarted(serverInfo).thenRun(() -> {
-                            // Move player to the started server
-                            ProxiedPlayer player = (ProxiedPlayer) sender;
-                            if (plugin.config.joinDelay > 0) {
-                                // Delay the join
-                                plugin.getProxy().getScheduler().schedule(plugin, () -> player.connect(serverInfo), plugin.config.joinDelay, TimeUnit.SECONDS);
-                                // Send a message
-                                player.sendMessage(plugin.messages.success("server_startup_join_move_delayed", serverName, plugin.config.joinDelay));
-                            } else {
-                                // Join immediately
-                                player.connect(serverInfo);
-                                // Send a message
-                                player.sendMessage(plugin.messages.success("server_startup_join_move", serverName));
-                            }
-                        }).exceptionally((Throwable e) -> {
-                            sender.sendMessage(plugin.messages.warning("server_startup_join_failed", serverName));
-                            return null;
-                        });
-                    }
-
-                } else {
-                    // Otherwise, just send a message
-                    sender.sendMessage(plugin.messages.success("server_start", serverName));
-                }
-
-                // Stop the server if nobody joins after a while
-                stopAfterWhile(sender, serverName, serverId, signalType);
-            } else {
+            if (signalType == PowerSignal.STOP) {
                 // When stopping the server
                 sender.sendMessage(plugin.messages.success("server_stop", serverName));
             }
+
+            // Start auto stop task and send warning
+            if (sender instanceof ProxiedPlayer && plugin.config.startupJoinTimeout > 0) {
+                // If auto join is configured, join the server when it is started
+                sender.sendMessage(plugin.messages.success("server_startup_join", serverName));
+
+                // Get the server info
+                ServerInfo serverInfo = plugin.getProxy().getServerInfo(serverName);
+                // ServerInfo is null if the server is not found on bungeecord config
+                if (serverInfo != null) {
+                    // Wait until the server is started
+                    onceStarted(serverInfo).thenRun(() -> {
+                        // Move player to the started server
+                        ProxiedPlayer player = (ProxiedPlayer) sender;
+                        if (plugin.config.joinDelay > 0) {
+                            // Delay the join
+                            plugin.getProxy().getScheduler().schedule(plugin, () -> player.connect(serverInfo), plugin.config.joinDelay, TimeUnit.SECONDS);
+                            // Send a message
+                            player.sendMessage(plugin.messages.success("server_startup_join_move_delayed", serverName, plugin.config.joinDelay));
+                        } else {
+                            // Join immediately
+                            player.connect(serverInfo);
+                            // Send a message
+                            player.sendMessage(plugin.messages.success("server_startup_join_move", serverName));
+                        }
+                    }).exceptionally((Throwable e) -> {
+                        sender.sendMessage(plugin.messages.warning("server_startup_join_failed", serverName));
+                        return null;
+                    });
+                }
+
+            } else {
+                // Otherwise, just send a message
+                sender.sendMessage(plugin.messages.success("server_start", serverName));
+            }
+
+            // Stop the server if nobody joins after a while
+            stopAfterWhile(sender, serverName, serverId, signalType);
 
         }).exceptionally(e -> {
             sender.sendMessage(plugin.messages.error("server_" + signal + "_failed", serverName));
@@ -95,21 +94,26 @@ public class ServerController {
         String signal = signalType.getSignal();
 
         // Get the auto stop time
-        Integer serverTimeout = plugin.config.getServerTimeout(serverName);
-        if (serverTimeout != null && serverTimeout >= 0) {
-            // Stop the server after a while
-            plugin.delay.stopAfterWhile(serverName, serverTimeout, () -> {
-                // Stop the server
-                sendPowerSignal(sender, serverName, serverId, PowerSignal.STOP);
+        int serverTimeout = plugin.config.getServerTimeout(serverName);
+        if (serverTimeout == 0) return;
 
-                // Record statistics
-                plugin.statistics.actionCounter.increment(Statistics.ActionCounter.ActionType.STOP_SERVER_NOBODY);
-                plugin.statistics.startReasonRecorder.recordStop(serverName);
-            });
-
-            // Send message
-            sender.sendMessage(plugin.messages.warning("server_" + signal + "_warning", serverName, serverTimeout));
+        // When on starting, use the start timeout additionally
+        if (signalType == PowerSignal.START) {
+            serverTimeout += plugin.config.startTimeout;
         }
+
+        // Stop the server after a while
+        plugin.delay.stopAfterWhile(serverName, serverTimeout, () -> {
+            // Stop the server
+            sendPowerSignal(sender, serverName, serverId, PowerSignal.STOP);
+
+            // Record statistics
+            plugin.statistics.actionCounter.increment(Statistics.ActionCounter.ActionType.STOP_SERVER_NOBODY);
+            plugin.statistics.startReasonRecorder.recordStop(serverName);
+        });
+
+        // Send message
+        sender.sendMessage(plugin.messages.warning("server_" + signal + "_warning", serverName, serverTimeout));
     }
 
     /**
