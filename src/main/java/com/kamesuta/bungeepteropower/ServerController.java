@@ -34,6 +34,7 @@ public class ServerController {
             if (signalType == PowerSignal.STOP) {
                 // When stopping the server
                 sender.sendMessage(plugin.messages.success("server_stop", serverName));
+                return;
             }
 
             // Start auto stop task and send warning
