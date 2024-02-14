@@ -7,6 +7,11 @@
 # Do not edit this value until the "/ptero check" asks you to do so.
 version: 1
 
+# Check for updates
+# If true, the plugin will check for updates on startup.
+# If a new version is available, a message will be sent to the console and to players with the permission "ptero.reload".
+checkUpdate: true
+
 # Language
 # Supported languages: en, ja, fr, ro
 # You can add your own language file in the plugins/BungeePteroPower directory.

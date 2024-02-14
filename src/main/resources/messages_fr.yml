@@ -1,5 +1,8 @@
 prefix: "[Ptero] "
 
+update_available: "Mise à jour disponible: BungeePteroPower v%s → v%s"
+update_available_tooltip: "Cliquez pour télécharger v%2$s!"
+
 join_autostart_title: "Démarrage du serveur..."
 join_autostart_subtitle: "Veuillez patienter un moment et essayer de vous reconnecter."
 join_start: "Le serveur %s est suspendu pour réduire les ressources du serveur, mais il peut être démarré en cliquant sur le bouton ci-dessous."

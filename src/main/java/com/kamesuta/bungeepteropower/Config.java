@@ -36,6 +36,10 @@ public class Config {
      */
     public final int configVersion;
     /**
+     * Whether to check for updates
+     */
+    public final boolean checkUpdate;
+    /**
      * Language
      */
     public final String language;
@@ -97,6 +101,7 @@ public class Config {
         try {
             // Basic settings
             this.configVersion = configuration.getInt("version", 0);
+            this.checkUpdate = configuration.getBoolean("checkUpdate", true);
             this.language = configuration.getString("language");
             this.startTimeout = configuration.getInt("startTimeout");
             this.powerControllerType = configuration.getString("powerControllerType");

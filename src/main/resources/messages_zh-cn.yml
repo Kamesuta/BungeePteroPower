@@ -1,5 +1,8 @@
 prefix: "[Ptero] "
 
+update_available: "可用更新: BungeePteroPower v%s → v%s"
+update_available_tooltip: "点击下载 v%2$s！"
+
 join_autostart_title: "服务器启动中..."
 join_autostart_subtitle: "请稍候再尝试重新连接。"
 join_start: "服务器「%s」处于休眠状态以节省资源，但您可以通过点击下方按钮来启动。"

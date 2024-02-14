@@ -9,6 +9,7 @@ import net.md_5.bungee.api.plugin.PluginManager;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -22,6 +23,10 @@ public final class BungeePteroPower extends Plugin implements BungeePteroPowerAP
      * Plugin Configurations
      */
     public Config config;
+    /**
+     * Version checker
+     */
+    public UpdateChecker updateChecker;
     /**
      * Fallback Translations
      */
@@ -66,6 +71,22 @@ public final class BungeePteroPower extends Plugin implements BungeePteroPowerAP
 
         // Check config
         config.validateConfig(getProxy().getConsole());
+
+        // Check for updates
+        String runningVersion = plugin.getDescription().getVersion().replace("-SNAPSHOT", "");
+        updateChecker = new UpdateChecker(runningVersion);
+        if (config.checkUpdate) {
+            updateChecker.checkForUpdates().thenRun(() -> {
+                // Log the result when starting the plugin
+                if (updateChecker.isUpdateAvailable()) {
+                    logger.info("An update is available: v" + updateChecker.getRunningVersion() + " -> v" + updateChecker.getNewVersion());
+                    logger.info("You can download BungeePteroPower v" + updateChecker.getNewVersion() + " from " + updateChecker.getDownloadLink());
+                }
+            }).exceptionally(e -> {
+                logger.log(Level.WARNING, "Update check failed", e);
+                return null;
+            });
+        }
 
         // Create DelayManager
         delay = new DelayManager();

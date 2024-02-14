@@ -130,6 +130,7 @@ The `config.yml` file includes the following settings, but not all items need to
     - When updating the plugin, a warning will be displayed if this value does not match the plugin version.
     - A `config.new.yml` file will be generated, and manual migration of settings using a merge tool is required.
     - After migration, please change this value to the new version.
+- `checkUpdate`: Set whether to check for plugin updates. The default is `true`.
 - `language`: Set the language to be used. The default is English (`en`).
     - Refer to the comments in the [config file](./src/main/resources/config.yml) for supported languages.
 - `startTimeout`: After starting a server with this plugin, it will stop the server if there are no players for a certain period. The unit is seconds.

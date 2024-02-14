@@ -36,7 +36,19 @@ public class PlayerListener implements Listener {
             player.hasPermission("ptero.start." + server.getName());
             player.hasPermission("ptero.stop." + server.getName());
         }
-        player.hasPermission("ptero.reload");
+
+        // If the player has the permission to reload the config, notice update if available
+        if (player.hasPermission("ptero.reload")) {
+            // Show update message
+            if (plugin.updateChecker.isUpdateAvailable()) {
+                player.sendMessage(new ComponentBuilder()
+                        .append(plugin.messages.info("update_available", plugin.updateChecker.getRunningVersion(), plugin.updateChecker.getNewVersion()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(plugin.messages.getMessage("update_available_tooltip", plugin.updateChecker.getRunningVersion(), plugin.updateChecker.getNewVersion()))))
+                        .event(new ClickEvent(ClickEvent.Action.OPEN_URL, plugin.updateChecker.getDownloadLink()))
+                        .create()
+                );
+            }
+        }
     }
 
     @EventHandler
