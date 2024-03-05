@@ -37,14 +37,14 @@ public class PterodactylController implements PowerController {
         HttpClient client = HttpClient.newHttpClient();
 
         // Create a form body to send power signal
-        String formBody = "signal=" + signal;
+        String jsonBody = "{\"signal\": \"" + signal + "\"}";
 
         // Create a request
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(plugin.config.pterodactylUrl.resolve(path).toString()))
-                .header("Content-Type", "application/x-www-form-urlencoded")
+                .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + plugin.config.pterodactylApiKey)
-                .POST(HttpRequest.BodyPublishers.ofString(formBody))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
 
         // Execute request and register a callback
