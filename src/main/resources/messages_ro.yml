@@ -5,6 +5,7 @@ update_available_tooltip: "Click pentru a descărca v%2$s!"
 
 join_autostart_title: "Se pornește serverul..."
 join_autostart_subtitle: "Vă rugăm să așteptați un moment și să încercați să vă reconectați."
+join_autostart_login: "Se pornește serverul...\n\nServerul %s este în modul de economisire a resurselor și este în curs de pornire.\nVă rugăm să așteptați puțin înainte de a vă reconecta."
 join_start: "Serverul %s este suspendat pentru a reduce resursele, dar poate fi pornit făcând clic pe butonul de mai jos."
 join_start_button: "[Pornește serverul %s]"
 join_start_button_tooltip: "Faceți clic pentru a porni serverul %s!"

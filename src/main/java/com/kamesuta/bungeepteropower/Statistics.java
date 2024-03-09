@@ -33,6 +33,7 @@ public class Statistics {
         // Config charts
         metrics.addCustomChart(new SimplePie("powerControllerType", () -> plugin.config.powerControllerType));
         metrics.addCustomChart(new SimplePie("language", () -> plugin.config.language));
+        metrics.addCustomChart(new SimplePie("useSynchronousPing", () -> plugin.config.useSynchronousPing ? "Enabled" : "Disabled"));
 
         // The number of servers managed by BungeePteroPower
         // I would like to know the percentage of how many servers are using this plugin.

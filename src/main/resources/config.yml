@@ -25,6 +25,12 @@ startTimeout: 120
 # Supported types: pterodactyl
 # You can add your own power controller using API.
 powerControllerType: pterodactyl
+  
+# Perform synchronous pinging to the server during login. (Experimental feature)
+# When enabled, pinging the server during login will happen synchronously rather than asynchronously.
+# This allows displaying BungeePteroPower messages instead of the "Could not connect to a default or fallback server" message upon login.
+# The default value is `false`. Enabling this can be useful if you want to set servers (such as lobby servers) to a suspended state in BungeePteroPower immediately after login.
+useSynchronousPing: false
 
 # This is used to check the server status to transfer players after the server starts
 startupJoin:

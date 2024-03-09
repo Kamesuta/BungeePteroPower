@@ -139,6 +139,10 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
 - `powerControllerType`: 使用するパワーコントローラーのタイプを設定します。
     - ビルトインのPowerControllerは現状 `pterodactyl` のみで、Pterodactylを操作します。
     - アドオンを追加することで、独自のPowerControllerを追加することができます。
+- `useSynchronousPing`: ログイン時、サーバーにPingを送信する際に同期的に行うかどうかを設定します。 (実験的な機能)
+    - この設定を有効にすると、ログイン時、サーバーにPingを送信する際に非同期ではなく同期的に行います。
+    - これによりログイン時に「Could not connect to a default or fallback server」メッセージの代わりにBungeePteroPowerのメッセージ(messages.yml 内の `join_autostart_login`)を表示することができます。
+    - デフォルトは `false` です。ログイン直後に参加するサーバー(ロビーサーバーなど)をBungeePteroPowerで休止状態にしたい場合にONにすると便利です。
 - `startupJoin`: サーバー開始後、プレイヤーを自動的に参加させるため、サーバーのステータスをチェックするために使用されます。
     - `timeout`: サーバー起動後、プレイヤーが参加するまでの最大待機時間を設定します。
         - この値をサーバーが起動するまでの最大時間を設定してください。

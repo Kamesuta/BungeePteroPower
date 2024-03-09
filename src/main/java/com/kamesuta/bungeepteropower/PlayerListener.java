@@ -17,6 +17,10 @@ import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+
+import static com.kamesuta.bungeepteropower.BungeePteroPower.logger;
 import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
 
 /**
@@ -79,39 +83,76 @@ public class PlayerListener implements Listener {
             return;
         }
 
+        // Check if the event is a join event
+        boolean isLogin = event.getReason() == ServerConnectEvent.Reason.JOIN_PROXY;
+        // Send pings to the server synchronously
+        boolean useSynchronousPing = isLogin && plugin.config.useSynchronousPing;
+
         // Ping the target server and check if it is offline
+        CompletableFuture<Void> pingFuture = new CompletableFuture<>();
         targetServer.ping((result, error) -> {
-            if (error != null) { // The server is offline
-                String serverName = targetServer.getName();
+            try {
+                // The server is offline
+                if (error != null) {
+                    String serverName = targetServer.getName();
 
-                // Start the target server
-                if (autostart) {
-                    // Send title and message
-                    player.sendTitle(instance.createTitle()
-                            .title(new ComponentBuilder(plugin.messages.getMessage("join_autostart_title", serverName)).color(ChatColor.YELLOW).create())
-                            .subTitle(new ComponentBuilder(plugin.messages.getMessage("join_autostart_subtitle", serverName)).create())
-                    );
+                    // Start the target server
+                    if (autostart) {
+                        // If synchronous ping is enabled, we can disconnect the player to show a custom message instead of "Could not connect to a default or fallback server".
+                        if (useSynchronousPing) {
+                            // Disconnect the player to show custom message
+                            player.disconnect(new ComponentBuilder(plugin.messages.getMessage("join_autostart_login")).color(ChatColor.YELLOW).create());
+                        } else {
+                            // Send title and message
+                            player.sendTitle(instance.createTitle()
+                                    .title(new ComponentBuilder(plugin.messages.getMessage("join_autostart_title", serverName)).color(ChatColor.YELLOW).create())
+                                    .subTitle(new ComponentBuilder(plugin.messages.getMessage("join_autostart_subtitle", serverName)).create())
+                            );
+                        }
 
-                    // Send power signal
-                    ServerController.sendPowerSignal(player, serverName, serverId, PowerSignal.START);
+                        // Send power signal
+                        ServerController.sendPowerSignal(player, serverName, serverId, PowerSignal.START);
 
-                    // Record statistics
-                    plugin.statistics.actionCounter.increment(Statistics.ActionCounter.ActionType.START_SERVER_AUTOJOIN);
-                    plugin.statistics.startReasonRecorder.recordStart(serverName, Statistics.StartReasonRecorder.StartReason.AUTOJOIN);
+                        // Record statistics
+                        plugin.statistics.actionCounter.increment(Statistics.ActionCounter.ActionType.START_SERVER_AUTOJOIN);
+                        plugin.statistics.startReasonRecorder.recordStart(serverName, Statistics.StartReasonRecorder.StartReason.AUTOJOIN);
 
-                } else {
-                    // Send message including the command to start the server
-                    player.sendMessage(plugin.messages.warning("join_start", serverName));
-                    player.sendMessage(new ComponentBuilder()
-                            .append(plugin.messages.success("join_start_button", serverName))
-                            .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ptero start " + serverName))
-                            .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(plugin.messages.getMessage("join_start_button_tooltip", serverName))))
-                            .color(ChatColor.GREEN)
-                            .create());
+                        // If synchronous ping is enabled, we can suppress "Could not connect to a default or fallback server" message
+                        if (useSynchronousPing) {
+                            event.setCancelled(true);
+                        }
 
+                    } else {
+                        // Send message including the command to start the server
+                        player.sendMessage(plugin.messages.warning("join_start", serverName));
+                        player.sendMessage(new ComponentBuilder()
+                                .append(plugin.messages.success("join_start_button", serverName))
+                                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ptero start " + serverName))
+                                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(plugin.messages.getMessage("join_start_button_tooltip", serverName))))
+                                .color(ChatColor.GREEN)
+                                .create());
+
+                    }
                 }
+
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Failed to start server process after ping: " + targetServer.getName(), e);
+
+            } finally {
+                // Complete the future
+                pingFuture.complete(null);
+
             }
         });
+
+        // Wait until the ping is finished
+        if (useSynchronousPing) {
+            try {
+                pingFuture.get();
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Failed to wait for the ping of the server: " + targetServer.getName(), e);
+            }
+        }
     }
 
     @EventHandler(priority = (byte) 1024)

@@ -139,6 +139,11 @@ The `config.yml` file includes the following settings, but not all items need to
 - `powerControllerType`: Set the type of power controller to be used.
     - The built-in PowerController currently supports only `pterodactyl`, which operates Pterodactyl.
     - By adding add-ons, you can add your own custom PowerController.
+      Certainly! Here's the English translation of the provided description:
+- `useSynchronousPing`: This setting determines whether to perform **synchronous** pinging to the server during login. (Experimental feature)
+    - When enabled, pinging the server during login will happen synchronously rather than asynchronously.
+    - This allows displaying BungeePteroPower messages (`join_autostart_login` in messages.yml) instead of the "Could not connect to a default or fallback server" message upon login.
+    - The default value is `false`. Enabling this can be useful if you want to set servers (such as lobby servers) to a suspended state in BungeePteroPower immediately after login.
 - `startupJoin`: After server startup, it is used to automatically join players to the server and check the server's status.
     - `timeout`: Set the maximum waiting time for players to join after server startup.
         - Set this value to the maximum time it takes for the server to start.

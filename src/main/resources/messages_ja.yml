@@ -5,6 +5,7 @@ update_available_tooltip: "クリックして v%2$s をダウンロード！"
 
 join_autostart_title: "サーバーを起動中..."
 join_autostart_subtitle: "しばらく待ってから再接続してください。"
+join_autostart_login: "サーバーを起動中...\n\nサーバー「%s」はサーバーリソースを節約するために休止中です。\n現在起動中ですので、しばらく待ってから再接続してください。"
 join_start: "サーバー「%s」はサーバーリソースを節約するために休止中ですが、下のボタンをクリックすると起動できます。"
 join_start_button: "[サーバー「%s」を起動]"
 join_start_button_tooltip: "クリックしてサーバー「%s」を起動！"

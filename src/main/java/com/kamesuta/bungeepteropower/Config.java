@@ -54,6 +54,10 @@ public class Config {
      */
     public final String powerControllerType;
     /**
+     * Send pings to the server synchronously
+     */
+    public final boolean useSynchronousPing;
+    /**
      * The number of seconds the plugin will try to connect the player to the desired server
      * Set this to the maximum time the server can take to start
      */
@@ -105,6 +109,7 @@ public class Config {
             this.language = configuration.getString("language");
             this.startTimeout = configuration.getInt("startTimeout");
             this.powerControllerType = configuration.getString("powerControllerType");
+            this.useSynchronousPing = configuration.getBoolean("useSynchronousPing", false);
 
             // Startup join settings
             this.startupJoinTimeout = configuration.getInt("startupJoin.timeout");

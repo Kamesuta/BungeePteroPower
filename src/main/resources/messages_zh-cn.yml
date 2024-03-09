@@ -5,6 +5,7 @@ update_available_tooltip: "点击下载 v%2$s！"
 
 join_autostart_title: "服务器启动中..."
 join_autostart_subtitle: "请稍候再尝试重新连接。"
+join_autostart_login: "正在启动服务器...\n\n服务器「%s」当前处于休眠状态以节省资源。\n请稍后重新连接。"
 join_start: "服务器「%s」处于休眠状态以节省资源，但您可以通过点击下方按钮来启动。"
 join_start_button: "[启动服务器「%s」]"
 join_start_button_tooltip: "点击以启动服务器「%s」！"
