@@ -63,11 +63,12 @@ public class PlayerListener implements Listener {
         ProxyServer instance = ProxyServer.getInstance();
 
         // Cancel the task to stop the server
-        plugin.delay.cancelStop(targetServer.getName());
+        String serverName = targetServer.getName();
+        plugin.delay.cancelStop(serverName);
 
         // Permission check
-        boolean autostart = player.hasPermission("ptero.autostart." + targetServer.getName());
-        boolean start = player.hasPermission("ptero.start." + targetServer.getName());
+        boolean autostart = player.hasPermission("ptero.autostart." + serverName);
+        boolean start = player.hasPermission("ptero.start." + serverName);
         if (!autostart && !start) {
             return;
         }
@@ -78,7 +79,7 @@ public class PlayerListener implements Listener {
         }
 
         // Get the Pterodactyl server ID
-        String serverId = plugin.config.getServerId(targetServer.getName());
+        String serverId = plugin.config.getServerId(serverName);
         if (serverId == null) {
             return;
         }
@@ -94,14 +95,12 @@ public class PlayerListener implements Listener {
             try {
                 // The server is offline
                 if (error != null) {
-                    String serverName = targetServer.getName();
-
                     // Start the target server
                     if (autostart) {
                         // If synchronous ping is enabled, we can disconnect the player to show a custom message instead of "Could not connect to a default or fallback server".
                         if (useSynchronousPing) {
                             // Disconnect the player to show custom message
-                            player.disconnect(new ComponentBuilder(plugin.messages.getMessage("join_autostart_login")).color(ChatColor.YELLOW).create());
+                            player.disconnect(new ComponentBuilder(plugin.messages.getMessage("join_autostart_login", serverName)).color(ChatColor.YELLOW).create());
                         } else {
                             // Send title and message
                             player.sendTitle(instance.createTitle()
