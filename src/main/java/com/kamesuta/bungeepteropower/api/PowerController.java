@@ -14,10 +14,20 @@ public interface PowerController {
     /**
      * Send a power signal to the Pterodactyl server.
      *
-     * @param serverName    The name of the server to start
-     * @param serverId      The server ID to send the signal to
-     * @param signalType    The power signal to send
+     * @param serverName The name of the server to start
+     * @param serverId   The server ID to send the signal to
+     * @param signalType The power signal to send
      * @return A future that completes when the request is finished
      */
     CompletableFuture<Void> sendPowerSignal(String serverName, String serverId, PowerSignal signalType);
+
+    /**
+     * Restore from a backup.
+     *
+     * @param serverName The name of the server to restore
+     * @param serverId   The server ID to restore
+     * @param backupName The name of the backup to restore
+     * @return A future that completes when the request is finished
+     */
+    CompletableFuture<Void> sendRestoreSignal(String serverName, String serverId, String backupName);
 }

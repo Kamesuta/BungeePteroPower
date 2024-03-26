@@ -15,9 +15,11 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
 ## Key Features
 
 - Automatically stops servers using Pterodactyl's API when there are no players on the server for a certain period of time.
+    - The time until shutdown can be configured for each server.
 - Automatically starts servers using Pterodactyl's API when players join the server.
-- The time until shutdown can be configured for each server.
 - Permissions settings allow for specifying players who can manually start servers and players for whom automatic startup is enabled upon joining.
+- You can reset the server from a backup when it shuts down.
+    - This is useful when creating mini-game servers that reset once played.
 
 ![Overview](https://github.com/Kamesuta/BungeePteroPower/assets/16362824/3cece79e-b41a-4119-a6cd-4800dd4f705d)
 
@@ -152,8 +154,14 @@ The `config.yml` file includes the following settings, but not all items need to
         - This is useful to wait for plugins like Luckperms to fully load
         - If you set it to 0, the player will be connected as soon as the server is pingable
     - `pingInterval`: Set the interval for checking the server's status.
+- `restoreOnStop`: Configure settings for the feature to reset the server from a backup when it is stopped.
+    - `timeout`: Set the maximum waiting time after sending the stop signal for the server to stop. (The restore will be performed after the server stops)
+    - `pingInterval`: Set the interval for checking if the server is offline after sending the stop signal.
 - `servers`: Configure settings for each server. Set the server ID and the time until automatic shutdown.
     - `timeout`: When there are no players on the server, it will stop after a certain period. The unit is seconds.
+    - `backupId`: The UUID of the backup to restore when the server stops.
+        - If this setting is empty or removed, no restore from backup will be performed when the server stops.
+        - Useful for servers that need to be reset after each game.
 
 ### Permission Settings
 
@@ -190,9 +198,11 @@ Ideally, we would like to support the following:
 - Power controllers that can start servers locally
 - Power controllers compatible with management software other than Pterodactyl.  
     For example, we would like to support the following:
+    - PufferPanel
     - Minecraft Server Manager
     - MCSManager
     - MC Server Soft
+    - AMP
 
 ### Creating Add-ons
 

@@ -5,7 +5,7 @@
 
 # Version of the configuration file
 # Do not edit this value until the "/ptero check" asks you to do so.
-version: 1
+version: 2
 
 # Check for updates
 # If true, the plugin will check for updates on startup.
@@ -32,6 +32,14 @@ powerControllerType: pterodactyl
 # The default value is `false`. Enabling this can be useful if you want to set servers (such as lobby servers) to a suspended state in BungeePteroPower immediately after login.
 useSynchronousPing: false
 
+# Configure settings for the feature to reset the server from a backup when it is stopped
+restoreOnStop:
+  # Set the maximum waiting time after sending the stop signal for the server to stop. (The restore will be performed after the server stops)
+  timeout: 120
+
+  # Set the interval for checking if the server is offline after sending the stop signal.
+  pingInterval: 5
+
 # This is used to check the server status to transfer players after the server starts
 startupJoin:
   # The number of seconds the plugin will try to connect the player to the desired server
@@ -40,7 +48,7 @@ startupJoin:
   timeout: 60
 
   # Once the server is pingable, wait the specified amount of seconds before sending the player to the server
-  # This is useful to wait for plugins like Luckperms to fully load
+  # This is useful to wait for plugins like LuckPerms to fully load
   # If you set it to 0, the player will be connected as soon as the server is pingable
   joinDelay: 5
 
@@ -71,3 +79,11 @@ servers:
   hub:
     id: abcd1234
     timeout: -1
+
+  minigame:
+    id: 1a2b3c4d
+    timeout: 30
+    # The UUID of the backup to restore when the server stops.
+    # If this setting is empty or removed, no restore from backup will be performed when the server stops.
+    # Useful for servers that need to be reset after each game.
+    backupId: 00000000-0000-0000-0000-000000000000

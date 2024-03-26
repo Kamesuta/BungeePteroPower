@@ -74,8 +74,8 @@ public class PteroCommand extends Command implements TabExecutor {
                 }
 
                 // Stop server
-                String serverId = plugin.config.getServerId(serverName);
-                if (serverId == null) {
+                Config.ServerConfig server = plugin.config.getServerConfig(serverName);
+                if (server == null) {
                     sender.sendMessage(plugin.messages.error("command_server_not_configured", serverName));
                     return;
                 }
@@ -91,7 +91,7 @@ public class PteroCommand extends Command implements TabExecutor {
                 }
 
                 // Send signal and auto join
-                ServerController.sendPowerSignal(sender, serverName, serverId, signal);
+                ServerController.sendPowerSignal(sender, serverName, server, signal);
 
                 // Record statistics
                 if (signal == PowerSignal.START) {
@@ -147,7 +147,7 @@ public class PteroCommand extends Command implements TabExecutor {
                 return plugin.config.getServerNames().stream()
                         .filter(name -> name.startsWith(args[1]))
                         .filter(name -> sender.hasPermission("ptero." + subCommand + "." + name))
-                        .filter(name -> plugin.config.getServerId(name) != null)
+                        .filter(name -> plugin.config.getServerConfig(name) != null)
                         .collect(Collectors.toList());
             }
 

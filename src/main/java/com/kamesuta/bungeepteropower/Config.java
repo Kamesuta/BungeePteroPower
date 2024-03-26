@@ -49,6 +49,14 @@ public class Config {
      */
     public final int startTimeout;
     /**
+     * The number of seconds to wait for the server to stop after sending the stop signal
+     */
+    public final int restoreTimeout;
+    /**
+     * The interval in seconds to check if the server has stopped while waiting for the server to stop after sending the server stop signal
+     */
+    public final int restorePingInterval;
+    /**
      * The type of the power controller
      * (e.g. "pterodactyl")
      */
@@ -81,13 +89,35 @@ public class Config {
      */
     public final String pterodactylApiKey;
     /**
-     * Pterodactyl server ID
+     * Per-server configuration
      */
-    private final Map<String, String> serverIdMap;
+    private final Map<String, ServerConfig> serverMap;
+
     /**
-     * The time in seconds to stop the server after the last player leaves.
+     * Per-server configuration
      */
-    private final Map<String, Integer> serverTimeoutMap;
+    public static class ServerConfig {
+        /**
+         * The server ID in the Pterodactyl panel
+         */
+        public final String id;
+        /**
+         * The number of seconds the plugin will try to connect the player to the desired server
+         * Set this to the maximum time the server can take to start
+         */
+        public final int timeout;
+        /**
+         * The backup server ID in the Pterodactyl panel
+         * If this is set, the server will be deleted and restored from the backup after stopping
+         */
+        public final @Nullable String backupId;
+
+        public ServerConfig(String id, int timeout, String backupId) {
+            this.id = id;
+            this.timeout = timeout;
+            this.backupId = backupId;
+        }
+    }
 
     public Config() {
         // Create/Load config.yml
@@ -108,6 +138,8 @@ public class Config {
             this.checkUpdate = configuration.getBoolean("checkUpdate", true);
             this.language = configuration.getString("language");
             this.startTimeout = configuration.getInt("startTimeout");
+            this.restoreTimeout = configuration.getInt("restoreOnStop.timeout", 120);
+            this.restorePingInterval = configuration.getInt("restoreOnStop.pingInterval", 5);
             this.powerControllerType = configuration.getString("powerControllerType");
             this.useSynchronousPing = configuration.getBoolean("useSynchronousPing", false);
 
@@ -121,13 +153,14 @@ public class Config {
             this.pterodactylApiKey = configuration.getString("pterodactyl.apiKey");
 
             // Bungeecord server name -> Pterodactyl server ID list
-            serverIdMap = new HashMap<>();
-            serverTimeoutMap = new HashMap<>();
+            serverMap = new HashMap<>();
             Configuration servers = configuration.getSection("servers");
             for (String serverId : servers.getKeys()) {
                 Configuration section = servers.getSection(serverId);
-                serverIdMap.put(serverId, section.getString("id"));
-                serverTimeoutMap.put(serverId, section.getInt("timeout"));
+                String id = section.getString("id");
+                int timeout = section.getInt("timeout");
+                String backupId = section.getString("backupId", null);
+                serverMap.put(serverId, new ServerConfig(id, timeout, backupId));
             }
 
         } catch (Exception e) {
@@ -137,23 +170,13 @@ public class Config {
     }
 
     /**
-     * Get the Pterodactyl server ID from the Bungeecord server name.
+     * Get per-server configuration from the Bungeecord server name.
      *
      * @param serverName The Bungeecord server name
      * @return The Pterodactyl server ID
      */
-    public @Nullable String getServerId(String serverName) {
-        return serverIdMap.get(serverName);
-    }
-
-    /**
-     * Get auto stop time from the Bungeecord server name.
-     *
-     * @param serverName The Bungeecord server name
-     * @return The auto stop time
-     */
-    public int getServerTimeout(String serverName) {
-        return serverTimeoutMap.getOrDefault(serverName, 0);
+    public @Nullable ServerConfig getServerConfig(String serverName) {
+        return serverMap.get(serverName);
     }
 
     /**
@@ -162,7 +185,7 @@ public class Config {
      * @return The Bungeecord server names
      */
     public Set<String> getServerNames() {
-        return serverIdMap.keySet();
+        return serverMap.keySet();
     }
 
     private static File makeConfig() throws IOException {

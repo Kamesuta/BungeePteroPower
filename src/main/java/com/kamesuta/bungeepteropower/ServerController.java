@@ -1,5 +1,6 @@
 package com.kamesuta.bungeepteropower;
 
+import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.api.PowerSignal;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
@@ -22,15 +23,26 @@ public class ServerController {
      *
      * @param sender     The command sender
      * @param serverName The name of the server to send the signal
-     * @param serverId   The server ID to send the signal to
+     * @param server     The server configuration to send the signal to
      * @param signalType The power signal to send
      */
-    public static void sendPowerSignal(CommandSender sender, String serverName, String serverId, PowerSignal signalType) {
+    public static void sendPowerSignal(CommandSender sender, String serverName, Config.ServerConfig server, PowerSignal signalType) {
         // Get signal
         String signal = signalType.getSignal();
 
-        // Send signal
-        plugin.config.getPowerController().sendPowerSignal(serverName, serverId, signalType).thenRun(() -> {
+        // Send power signal
+        CompletableFuture<Void> future;
+        PowerController powerController = plugin.config.getPowerController();
+        if (signalType == PowerSignal.STOP && server.backupId != null && !server.backupId.isEmpty()) {
+            // Restore from backup if the backup ID is specified
+            future = powerController.sendRestoreSignal(serverName, server.id, server.backupId);
+        } else {
+            // Otherwise, send power signal
+            future = powerController.sendPowerSignal(serverName, server.id, signalType);
+        }
+
+        // After the power signal is sent
+        future.thenRun(() -> {
             if (signalType == PowerSignal.STOP) {
                 // When stopping the server
                 sender.sendMessage(plugin.messages.success("server_stop", serverName));
@@ -73,7 +85,7 @@ public class ServerController {
             }
 
             // Stop the server if nobody joins after a while
-            stopAfterWhile(sender, serverName, serverId, signalType);
+            stopAfterWhile(sender, serverName, server, signalType);
 
         }).exceptionally(e -> {
             sender.sendMessage(plugin.messages.error("server_" + signal + "_failed", serverName));
@@ -87,15 +99,15 @@ public class ServerController {
      *
      * @param sender     The command sender
      * @param serverName The name of the server to stop
-     * @param serverId   The server ID to stop
+     * @param server     The server configuration to stop
      * @param signalType Is this executed while stopping or starting?
      */
-    public static void stopAfterWhile(CommandSender sender, String serverName, String serverId, PowerSignal signalType) {
+    public static void stopAfterWhile(CommandSender sender, String serverName, Config.ServerConfig server, PowerSignal signalType) {
         // Get signal
         String signal = signalType.getSignal();
 
         // Get the auto stop time
-        int serverTimeout = plugin.config.getServerTimeout(serverName);
+        int serverTimeout = server.timeout;
         if (serverTimeout == 0) return;
 
         // When on starting, use the start timeout additionally
@@ -106,7 +118,7 @@ public class ServerController {
         // Stop the server after a while
         plugin.delay.stopAfterWhile(serverName, serverTimeout, () -> {
             // Stop the server
-            sendPowerSignal(sender, serverName, serverId, PowerSignal.STOP);
+            sendPowerSignal(sender, serverName, server, PowerSignal.STOP);
 
             // Record statistics
             plugin.statistics.actionCounter.increment(Statistics.ActionCounter.ActionType.STOP_SERVER_NOBODY);
@@ -125,7 +137,7 @@ public class ServerController {
      */
     private static CompletableFuture<Void> onceStarted(ServerInfo serverInfo) {
         CompletableFuture<Void> future = new CompletableFuture<Void>().orTimeout(plugin.config.startupJoinTimeout, TimeUnit.SECONDS);
-        Callback<ServerPing> callback = new Callback<ServerPing>() {
+        Callback<ServerPing> callback = new Callback<>() {
             @Override
             public void done(ServerPing serverPing, Throwable throwable) {
                 // Do nothing if timeout or already completed
