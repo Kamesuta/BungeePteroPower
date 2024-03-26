@@ -39,6 +39,11 @@ public class Statistics {
         // I would like to know the percentage of how many servers are using this plugin.
         metrics.addCustomChart(new SimplePie("pteroServerCount", () -> String.valueOf(plugin.config.getServerNames().size())));
         metrics.addCustomChart(new SimplePie("bungeeServerCount", () -> String.valueOf(proxyServer.getServers().size())));
+        metrics.addCustomChart(new SimplePie("restoreServerCount", () -> String.valueOf(plugin.config.getServerNames().stream()
+                .map(name -> plugin.config.getServerConfig(name))
+                .filter(server -> server != null && server.backupId != null && !server.backupId.isEmpty())
+                .count()
+        )));
 
         // The number of power actions performed
         for (ActionCounter.ActionType actionType : ActionCounter.ActionType.values()) {
