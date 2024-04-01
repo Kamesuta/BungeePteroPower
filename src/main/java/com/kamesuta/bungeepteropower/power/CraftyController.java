@@ -83,6 +83,6 @@ public class CraftyController implements PowerController {
     @Override
     public CompletableFuture<Void> sendRestoreSignal(String serverName, String serverId, String backupName) {
         throw new UnsupportedOperationException(
-                "Feature imcomplete at this time. The Crafty 4 API doesn't provide restore function.");
+                "Feature incomplete at this time. The Crafty 4 Controller API doesn't provide restore function.");
     }
 }
