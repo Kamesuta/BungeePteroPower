@@ -64,6 +64,15 @@ pterodactyl:
   # You can find the client api key in the "API Credentials" tab of the "Account" page.
   apiKey: "ptlc_000000000000000000000000000000000000000000"
 
+# Crafty configuration
+crafty:
+  # The URL of your crafty panel
+  # If you use Cloudflare Tunnel, you need to allow the ip in the bypass setting.
+  url: "https://panel.example.com"
+  # The client api key of your crafty panel. Can be found in Panel Config > Users > Edit User > API Keys
+  # The only permission you need is: COMMANDS
+  apiKey: ""
+
 # Per server configuration
 servers:
   pvp:

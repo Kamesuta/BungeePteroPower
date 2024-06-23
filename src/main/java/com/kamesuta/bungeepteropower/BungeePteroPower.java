@@ -3,6 +3,7 @@ package com.kamesuta.bungeepteropower;
 import com.kamesuta.bungeepteropower.api.BungeePteroPowerAPI;
 import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.power.PterodactylController;
+import com.kamesuta.bungeepteropower.power.CraftyController;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 
@@ -65,9 +66,10 @@ public final class BungeePteroPower extends Plugin implements BungeePteroPowerAP
         // Load config and translations
         reload();
 
-        // Create PowerController map and register PterodactylController
+        // Create PowerController map and register PterodactylController and CraftyController
         powerControllers = new ConcurrentHashMap<>();
         powerControllers.put("pterodactyl", new PterodactylController());
+        powerControllers.put("crafty", new CraftyController());
 
         // Check config
         config.validateConfig(getProxy().getConsole());
