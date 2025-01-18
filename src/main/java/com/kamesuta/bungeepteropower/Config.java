@@ -89,6 +89,14 @@ public class Config {
      */
     public final String pterodactylApiKey;
     /**
+     * Crafty-4 API URL
+     */
+    public final URI craftyUrl;
+    /**
+     * Crafty-4 API Key
+     */
+    public final String craftyApiKey;
+    /**
      * Per-server configuration
      */
     private final Map<String, ServerConfig> serverMap;
@@ -151,6 +159,10 @@ public class Config {
             // Pterodactyl API credentials
             this.pterodactylUrl = new URI(configuration.getString("pterodactyl.url"));
             this.pterodactylApiKey = configuration.getString("pterodactyl.apiKey");
+
+            // Crafty 4 API credentials
+            this.craftyUrl = new URI(configuration.getString("crafty.url"));
+            this.craftyApiKey = configuration.getString("crafty.apiKey");
 
             // Bungeecord server name -> Pterodactyl server ID list
             serverMap = new HashMap<>();
@@ -247,22 +259,37 @@ public class Config {
             }
         }
 
-        // Validate the pterodactyl URL
-        if (pterodactylUrl == null) {
-            sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl URL in the configuration is not set.").create());
-        }
-        if (pterodactylUrl.getHost().endsWith(".example.com")) {
-            sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl URL in the configuration is example.com. Please set the correct URL.").create());
-        }
-        // Validate the pterodactyl API key
-        if (pterodactylApiKey == null) {
-            sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl API key in the configuration is not set.").create());
-        }
-        if (!pterodactylApiKey.startsWith("ptlc_")) {
-            sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl API key should start with 'ptlc_'.").create());
-        }
-        if (pterodactylApiKey.startsWith("ptlc_0000")) {
-            sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl API key in the configuration is the default key. Please set the correct key.").create());
+        if (powerControllerType == "pterodactyl") {
+            // Validate the pterodactyl URL
+            if (pterodactylUrl == null) {
+                sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl URL in the configuration is not set.").create());
+            }
+            if (pterodactylUrl.getHost().endsWith(".example.com")) {
+                sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl URL in the configuration is example.com. Please set the correct URL.").create());
+            }
+            // Validate the pterodactyl API key
+            if (pterodactylApiKey == null) {
+                sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl API key in the configuration is not set.").create());
+            }
+            if (!pterodactylApiKey.startsWith("ptlc_")) {
+                sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl API key should start with 'ptlc_'.").create());
+            }
+            if (pterodactylApiKey.startsWith("ptlc_0000")) {
+                sender.sendMessage(plugin.messages.prefix().append("Warning: The Pterodactyl API key in the configuration is the default key. Please set the correct key.").create());
+            }
+        } else if (powerControllerType == "crafty") {
+            // Validate the crafty URL
+            if (craftyUrl == null) {
+                sender.sendMessage(plugin.messages.prefix().append("Warning: The Crafty URL in the configuration is not set.").create());
+            }
+            if (craftyUrl.getHost().endsWith(".example.com")) {
+                sender.sendMessage(plugin.messages.prefix().append("Warning: The Crafty URL in the configuration is example.com. Please set the correct URL.").create());
+            }
+            // Validate the crafty API key
+            if (craftyApiKey == null) {
+                sender.sendMessage(plugin.messages.prefix().append("Warning: The Crafty API key in the configuration is not set.").create());
+            }
+
         }
 
         // Validate the server names
