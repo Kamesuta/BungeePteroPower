@@ -115,12 +115,7 @@ The `config.yml` file includes the following settings, but not all items need to
 
 ### Required Settings
 
-- `pterodactyl`: Configure settings for Pterodactyl, including URL and API key.
-    - `url`: Set the URL of your Pterodactyl panel. (Example: https://panel.example.com/)
-        - If you are using services like Cloudflare Tunnel, ensure proper bypass settings for IP-based communication.
-    - `apiKey`: Set the client API key for Pterodactyl.
-        - It begins with `ptlc_`.
-        - Client API keys for Pterodactyl can be found in the "API Credentials" tab on the account page.
+- `pterodactyl`: Refer to [Panel Configuration Items > Using Panels Other Than Pterodactyl](#panel-configuration-items).
 - `servers`: Configure settings for each server. Set the server ID and the time until automatic shutdown.
     - `id`: Set the server ID on Pterodactyl.
         - Server IDs on Pterodactyl can be found in the URL of the server page.
@@ -165,6 +160,26 @@ The `config.yml` file includes the following settings, but not all items need to
     - `backupId`: The UUID of the backup to restore when the server stops.
         - If this setting is empty or removed, no restore from backup will be performed when the server stops.
         - Useful for servers that need to be reset after each game.
+
+## Using Panels Other Than Pterodactyl
+
+The built-in PowerController supports the following:
+- `pterodactyl`: https://pterodactyl.io/
+- `crafty`: https://craftycontrol.com/
+
+In addition to the built-in options, you can add your own custom PowerController by creating an add-on.
+
+### Panel Configuration Items
+
+- `powerControllerType`: Set the type of PowerController to use.
+    - Specify options such as `pterodactyl` or `crafty`.
+- `pterodactyl`: Configure settings for Pterodactyl, including URL and API key.
+    - `url`: Set the URL of your Pterodactyl panel. (Example: https://panel.example.com/)
+        - If you are using services like Cloudflare Tunnel, ensure proper bypass settings for IP-based communication.
+    - `apiKey`: Set the client API key for Pterodactyl.
+        - It begins with `ptlc_`.
+        - Client API keys for Pterodactyl can be found in the "API Credentials" tab on the account page.
+- `crafty`: Configure settings for the Crafty Controller. Set the URL and API key. The configuration items are the same as those for Pterodactyl.
 
 ### Permission Settings
 

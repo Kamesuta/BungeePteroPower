@@ -115,12 +115,7 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
 
 ### 設定が必要な項目
 
-- `pterodactyl`: Pterodactylの設定を行います。URLとAPIキーを設定します。
-    - `url`: ご自身のPterodactylパネルのURLを設定します。(例: https://panel.example.com/)
-        - Cloudflare Tunnelなどを使用している場合は、通信できるようにIPによるバイパス設定を行ってください。
-    - `apiKey`: PterodactylのクライアントAPIキーを設定します。
-        - `ptlc_`から始まる文字列です。
-        - PterodactylのクライアントAPIキーは、アカウントページの「API Credentials」タブから確認できます。
+- `pterodactyl`: [Pterodactyl以外のパネルを使用する>パネルの設定項目](#パネルの設定項目) に記載
 - `servers`: サーバーごとの設定を行います。サーバーIDと自動停止までの時間を設定します。
     - `id`: Pterodactyl上のサーバーIDを設定します。
         - PterodactylのサーバーIDは、サーバーページのURLから確認できます。
@@ -138,9 +133,6 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
 - `startTimeout`: このプラグインでサーバーを起動した後、一定時間プレイヤーがいない場合にサーバーを停止します。単位は秒です。
     - 起動後は、startTimeout+サーバーのtimeout時間が経過すると、サーバーが停止します。
     - 1に設定すると、サーバー起動後、プレイヤーが入って抜けるまではサーバーを起動したままになります。
-- `powerControllerType`: 使用するパワーコントローラーのタイプを設定します。
-    - ビルトインのPowerControllerは現状 `pterodactyl` のみで、Pterodactylを操作します。
-    - アドオンを追加することで、独自のPowerControllerを追加することができます。
 - `useSynchronousPing`: ログイン時、サーバーにPingを送信する際に同期的に行うかどうかを設定します。 (実験的な機能)
     - この設定を有効にすると、ログイン時、サーバーにPingを送信する際に非同期ではなく同期的に行います。
     - これによりログイン時に「Could not connect to a default or fallback server」メッセージの代わりにBungeePteroPowerのメッセージ(messages.yml 内の `join_autostart_login`)を表示することができます。
@@ -164,6 +156,26 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
     - `backupId`: サーバーが停止したときに復元するバックアップのUUIDです。
         - この設定を空、又は削除すると、サーバー停止時にバックアップからのリストアは行われません。
         - 各ゲームの後にリセットする必要があるサーバーに便利です。
+
+## Pterodactyl以外のパネルを使用する
+
+ビルトインのPowerControllerは以下をサポートしています
+- `pterodactyl`: https://pterodactyl.io/
+- `crafty`: https://craftycontrol.com/
+
+ビルトイン以外にも、アドオンを追加することで、独自のPowerControllerを追加することができます。
+
+### パネルの設定項目
+
+- `powerControllerType`: 使用するパワーコントローラーのタイプを設定します。
+    - `pterodactyl` や `crafty` などを指定します。
+- `pterodactyl`: Pterodactylの設定を行います。URLとAPIキーを設定します。
+    - `url`: ご自身のPterodactylパネルのURLを設定します。(例: https://panel.example.com/)
+        - Cloudflare Tunnelなどを使用している場合は、通信できるようにIPによるバイパス設定を行ってください。
+    - `apiKey`: PterodactylのクライアントAPIキーを設定します。
+        - `ptlc_`から始まる文字列です。
+        - PterodactylのクライアントAPIキーは、アカウントページの「API Credentials」タブから確認できます。
+- `crafty`: Crafty Controllerの設定を行います。URLとAPIキーを設定します。設定項目は pterodactyl と同じです。
 
 ### パーミッション設定
 

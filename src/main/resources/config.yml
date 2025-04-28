@@ -22,7 +22,7 @@ language: en
 startTimeout: 120
 
 # Power Controller Type
-# Supported types: pterodactyl
+# Supported types: pterodactyl, crafty
 # You can add your own power controller using API.
 powerControllerType: pterodactyl
   
