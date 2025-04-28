@@ -66,6 +66,10 @@ public class Config {
      */
     public final boolean useSynchronousPing;
     /**
+     * Optional: Add custom HTTP headers (e.g., for authentication or other use cases)
+     */
+    public final Map<String, String> customHeaders;
+    /**
      * The number of seconds the plugin will try to connect the player to the desired server
      * Set this to the maximum time the server can take to start
      */
@@ -150,6 +154,17 @@ public class Config {
             this.restorePingInterval = configuration.getInt("restoreOnStop.pingInterval", 5);
             this.powerControllerType = configuration.getString("powerControllerType");
             this.useSynchronousPing = configuration.getBoolean("useSynchronousPing", false);
+
+            Configuration headers = configuration.getSection("customHeaders");
+            this.customHeaders = headers == null ? new HashMap<>() : headers
+                    .getKeys()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            key -> key,
+                            headers::getString,
+                            (existing, replacement) -> existing,
+                            HashMap::new
+                    ));
 
             // Startup join settings
             this.startupJoinTimeout = configuration.getInt("startupJoin.timeout");

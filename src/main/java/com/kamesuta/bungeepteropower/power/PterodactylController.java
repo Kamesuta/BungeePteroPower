@@ -39,21 +39,16 @@ public class PterodactylController implements PowerController {
         // Create a path
         String path = "/api/client/servers/" + serverId + "/power";
 
-        HttpClient client = HttpClient.newHttpClient();
-
         // Create a JSON body to send power signal
         String jsonBody = "{\"signal\": \"" + signal + "\"}";
 
         // Create a request
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(plugin.config.pterodactylUrl.resolve(path).toString()))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + plugin.config.pterodactylApiKey)
+        HttpRequest request = requestBuilder(path)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
 
         // Execute request and register a callback
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        return HttpClient.newHttpClient().sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(status -> {
                     int code = status.statusCode();
                     if (code == 204) {
@@ -97,6 +92,20 @@ public class PterodactylController implements PowerController {
     }
 
     /**
+     * Create a request builder with custom headers
+     * @param The path to the request
+     * @return A request builder with custom headers
+     */
+    private HttpRequest.Builder requestBuilder(String path) {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(plugin.config.pterodactylUrl.resolve(path).toString()))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + plugin.config.pterodactylApiKey);
+        plugin.config.customHeaders.forEach(builder::header);
+        return builder;
+    }
+
+    /**
      * Restore from a backup.
      *
      * @param serverName The name of the server
@@ -110,21 +119,16 @@ public class PterodactylController implements PowerController {
         // Create a path
         String path = "/api/client/servers/" + serverId + "/backups/" + backupUuid + "/restore";
 
-        HttpClient client = HttpClient.newHttpClient();
-
         // Create a JSON body to delete all files
         String jsonBody = "{\"truncate\":true}";
 
         // Create a request
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(plugin.config.pterodactylUrl.resolve(path).toString()))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + plugin.config.pterodactylApiKey)
+        HttpRequest request = requestBuilder(path)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
 
         // Execute request and register a callback
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        return HttpClient.newHttpClient().sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(status -> {
                     int code = status.statusCode();
                     if (code == 204) {

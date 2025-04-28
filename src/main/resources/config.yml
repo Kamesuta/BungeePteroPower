@@ -32,6 +32,11 @@ powerControllerType: pterodactyl
 # The default value is `false`. Enabling this can be useful if you want to set servers (such as lobby servers) to a suspended state in BungeePteroPower immediately after login.
 useSynchronousPing: false
 
+# Optional: Add custom HTTP headers (e.g., for authentication or other use cases)
+customHeaders:
+  #CF-Access-Client-Id: XXXXX.access # Example: Cloudflare Access Client ID
+  #CF-Access-Client-Secret: XXXXXX # Example: Cloudflare Access Client Secret
+
 # Configure settings for the feature to reset the server from a backup when it is stopped
 restoreOnStop:
   # Set the maximum waiting time after sending the stop signal for the server to stop. (The restore will be performed after the server stops)

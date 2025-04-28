@@ -1,7 +1,5 @@
 package com.kamesuta.bungeepteropower.power;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.api.PowerSignal;
 
@@ -11,8 +9,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import static com.kamesuta.bungeepteropower.BungeePteroPower.logger;
@@ -39,17 +35,12 @@ public class CraftyController implements PowerController {
         // Create a path
         String path = "/api/v2/servers/" + serverId + "/action/" + action;
 
-        HttpClient client = HttpClient.newHttpClient();
-
         // Create a request
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(plugin.config.craftyUrl.resolve(path).toString()))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + plugin.config.craftyApiKey)
+        HttpRequest request = requestBuilder(path)
                 .POST(HttpRequest.BodyPublishers.ofString(""))
                 .build();
 
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        return HttpClient.newHttpClient().sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(status -> {
                     int code = status.statusCode();
                     logger.info(status.toString());
@@ -77,12 +68,26 @@ public class CraftyController implements PowerController {
      * @param serverName The name of the server
      * @param serverId   The Crafty server ID
      * @param backupName The file name of the backup
-     * @return A future that completes when the request to restore from the backup
-     *         is sent after the server becomes offline
+     * @return A future that completes when the request to restore from the backup is sent after the server becomes offline
      */
     @Override
     public CompletableFuture<Void> sendRestoreSignal(String serverName, String serverId, String backupName) {
         throw new UnsupportedOperationException(
                 "Feature incomplete at this time. The Crafty 4 Controller API doesn't provide restore function.");
+    }
+
+    /**
+     * Create a request builder with custom headers
+     *
+     * @param The path to the request
+     * @return A request builder with custom headers
+     */
+    private HttpRequest.Builder requestBuilder(String path) {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(plugin.config.craftyUrl.resolve(path).toString()))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + plugin.config.craftyApiKey);
+        plugin.config.customHeaders.forEach(builder::header);
+        return builder;
     }
 }
