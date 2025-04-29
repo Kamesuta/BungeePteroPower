@@ -157,7 +157,7 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
         - この設定を空、又は削除すると、サーバー停止時にバックアップからのリストアは行われません。
         - 各ゲームの後にリセットする必要があるサーバーに便利です。
 
-## Pterodactyl以外のパネルを使用する
+### Pterodactyl以外のパネルを使用する
 
 ビルトインのPowerControllerは以下をサポートしています
 - `pterodactyl`: https://pterodactyl.io/
@@ -165,7 +165,7 @@ https://github.com/Kamesuta/BungeePteroPower/assets/16362824/019fdfc5-f0fc-4532-
 
 ビルトイン以外にも、アドオンを追加することで、独自のPowerControllerを追加することができます。
 
-### パネルの設定項目
+#### パネルの設定項目
 
 - `powerControllerType`: 使用するパワーコントローラーのタイプを設定します。
     - `pterodactyl` や `crafty` などを指定します。

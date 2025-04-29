@@ -115,7 +115,7 @@ The `config.yml` file includes the following settings, but not all items need to
 
 ### Required Settings
 
-- `pterodactyl`: Refer to [Panel Configuration Items > Using Panels Other Than Pterodactyl](#panel-configuration-items).
+- `pterodactyl`: Refer to [Using Panels Other Than Pterodactyl > Panel Settings](#panel-settings).
 - `servers`: Configure settings for each server. Set the server ID and the time until automatic shutdown.
     - `id`: Set the server ID on Pterodactyl.
         - Server IDs on Pterodactyl can be found in the URL of the server page.
@@ -161,7 +161,7 @@ The `config.yml` file includes the following settings, but not all items need to
         - If this setting is empty or removed, no restore from backup will be performed when the server stops.
         - Useful for servers that need to be reset after each game.
 
-## Using Panels Other Than Pterodactyl
+### Using Panels Other Than Pterodactyl
 
 The built-in PowerController supports the following:
 - `pterodactyl`: https://pterodactyl.io/
@@ -169,7 +169,7 @@ The built-in PowerController supports the following:
 
 In addition to the built-in options, you can add your own custom PowerController by creating an add-on.
 
-### Panel Configuration Items
+#### Panel Settings
 
 - `powerControllerType`: Set the type of PowerController to use.
     - Specify options such as `pterodactyl` or `crafty`.
