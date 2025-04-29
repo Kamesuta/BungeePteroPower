@@ -32,6 +32,11 @@ powerControllerType: pterodactyl
 # The default value is `false`. Enabling this can be useful if you want to set servers (such as lobby servers) to a suspended state in BungeePteroPower immediately after login.
 useSynchronousPing: false
 
+# Choose the method to check if a managed server is offline.
+# "bungeecord": Use BungeeCord ping to check the server status
+# "panel": Use the panel API to check the server status
+serverStatusCheckMethod: bungeecord
+
 # Optional: Add custom HTTP headers (e.g., for authentication or other use cases)
 customHeaders:
   #CF-Access-Client-Id: XXXXX.access # Example: Cloudflare Access Client ID

@@ -133,14 +133,13 @@ The `config.yml` file includes the following settings, but not all items need to
 - `startTimeout`: After starting a server with this plugin, it will stop the server if there are no players for a certain period. The unit is seconds.
     - After starting, the server will stop after the `startTimeout` plus the server's timeout duration.
     - Setting it to 1 keeps the server running until players join and leave.
-- `powerControllerType`: Set the type of power controller to be used.
-    - The built-in PowerController currently supports only `pterodactyl`, which operates Pterodactyl.
-    - By adding add-ons, you can add your own custom PowerController.
-      Certainly! Here's the English translation of the provided description:
 - `useSynchronousPing`: This setting determines whether to perform **synchronous** pinging to the server during login. (Experimental feature)
     - When enabled, pinging the server during login will happen synchronously rather than asynchronously.
     - This allows displaying BungeePteroPower messages (`join_autostart_login` in messages.yml) instead of the "Could not connect to a default or fallback server" message upon login.
     - The default value is `false`. Enabling this can be useful if you want to set servers (such as lobby servers) to a suspended state in BungeePteroPower immediately after login.
+- `serverStatusCheckMethod`: Choose the method to check if a managed server is offline.
+    - "bungeecord" method: Use BungeeCord ping to check the server status
+    - "panel" method: Use the panel API to check the server status
 - `customHeaders`: Custom HTTP headers
     - Can be used for purposes such as authentication headers or reverse proxies.
     - Specify in the format `Key: Value`.

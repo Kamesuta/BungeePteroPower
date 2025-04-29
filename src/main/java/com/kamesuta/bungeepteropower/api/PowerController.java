@@ -22,6 +22,17 @@ public interface PowerController {
     CompletableFuture<Void> sendPowerSignal(String serverName, String serverId, PowerSignal signalType);
 
     /**
+     * Check if the server is offline.
+     *
+     * @param serverName The name of the server to check
+     * @param serverId   The server ID to check
+     * @return A future that completes with true if the server is offline, false otherwise
+     */
+    default CompletableFuture<Boolean> checkOffline(String serverName, String serverId) {
+        throw new UnsupportedOperationException("This power controller does not support checking offline status.");
+    }
+
+    /**
      * Restore from a backup.
      *
      * @param serverName The name of the server to restore
@@ -29,5 +40,7 @@ public interface PowerController {
      * @param backupName The name of the backup to restore
      * @return A future that completes when the request is finished
      */
-    CompletableFuture<Void> sendRestoreSignal(String serverName, String serverId, String backupName);
+    default CompletableFuture<Void> sendRestoreSignal(String serverName, String serverId, String backupName) {
+        throw new UnsupportedOperationException("This power controller does not support restore signal.");
+    }
 }

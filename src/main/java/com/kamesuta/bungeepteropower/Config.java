@@ -66,6 +66,12 @@ public class Config {
      */
     public final boolean useSynchronousPing;
     /**
+     * Choose the method to check if a managed server is offline.
+     * bungeecord: Use BungeeCord ping to check the server status
+     * panel: Use the panel API to check the server status
+     */
+    public final String serverStatusCheckMethod;
+    /**
      * Optional: Add custom HTTP headers (e.g., for authentication or other use cases)
      */
     public final Map<String, String> customHeaders;
@@ -154,6 +160,7 @@ public class Config {
             this.restorePingInterval = configuration.getInt("restoreOnStop.pingInterval", 5);
             this.powerControllerType = configuration.getString("powerControllerType");
             this.useSynchronousPing = configuration.getBoolean("useSynchronousPing", false);
+            this.serverStatusCheckMethod = configuration.getString("serverStatusCheckMethod", "bungeecord");
 
             Configuration headers = configuration.getSection("customHeaders");
             this.customHeaders = headers == null ? new HashMap<>() : headers
