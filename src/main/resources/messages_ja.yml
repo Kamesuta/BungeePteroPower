@@ -16,6 +16,7 @@ command_stop_usage: "/ptero stop <server> の形式で入力してください"
 command_insufficient_permission: "権限が不足しています。"
 command_config_reloaded: "設定が再読み込みされました。"
 command_server_not_configured: "サーバー「%s」は設定されていません。"
+command_config_checked: "設定のチェックが完了しました。"
 
 server_start: "休止中のサーバー「%s」を起動中... しばらく待ってから入り直してください。"
 server_start_failed: "サーバー「%s」の起動に失敗しました"

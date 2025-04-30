@@ -16,6 +16,7 @@ command_stop_usage: "请以形式 '/ptero stop <server>' 输入"
 command_insufficient_permission: "权限不足。"
 command_config_reloaded: "配置已重新加载。"
 command_server_not_configured: "服务器「%s」尚未配置。"
+command_config_checked: "配置检查已完成。"
 
 server_start: "正在启动休眠中的服务器「%s」... 请稍候再次尝试连接。"
 server_start_failed: "无法启动服务器「%s」"

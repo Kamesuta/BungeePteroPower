@@ -16,6 +16,7 @@ command_stop_usage: "Utilizare: /ptero stop <server>"
 command_insufficient_permission: "Permisiuni insuficiente."
 command_config_reloaded: "Configurația a fost reîncărcată."
 command_server_not_configured: "Serverul %s nu este configurat."
+command_config_checked: "Verificarea configurației a fost finalizată."
 
 server_start: "Se pornește serverul suspendat %s... Vă rugăm să așteptați un moment și să vă reconectați."
 server_start_failed: "Nu s-a reușit pornirea serverului %s"
