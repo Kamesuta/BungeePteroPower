@@ -93,7 +93,8 @@ public class PterodactylController implements PowerController {
 
     /**
      * Create a request builder with custom headers
-     * @param The path to the request
+     *
+     * @param path The path to the request
      * @return A request builder with custom headers
      */
     private HttpRequest.Builder requestBuilder(String path) {
@@ -157,51 +158,47 @@ public class PterodactylController implements PowerController {
     private CompletableFuture<Void> waitUntilOffline(String serverName, String serverId) {
         CompletableFuture<Void> future = new CompletableFuture<Void>().orTimeout(plugin.config.restoreTimeout, TimeUnit.SECONDS);
         // Wait until the server becomes offline
-        Consumer<String> callback = new Consumer<>() {
+        Consumer<Boolean> callback = new Consumer<>() {
             @Override
-            public void accept(String powerStatus) {
+            public void accept(Boolean isOffline) {
                 // Do nothing if timeout or already completed
                 if (future.isDone()) {
                     return;
                 }
                 // Complete if the server is offline
-                if (powerStatus.equals("offline")) {
+                if (isOffline) {
                     future.complete(null);
                     return;
                 }
                 // Otherwise schedule another ping
-                logger.fine("Server is still " + powerStatus + ". Waiting for it to be offline: " + serverName);
-                plugin.getProxy().getScheduler().schedule(plugin, () -> getPowerStatus(serverName, serverId).thenAccept(this), plugin.config.restorePingInterval, TimeUnit.SECONDS);
+                logger.fine("Server is still online. Waiting for it to be offline: " + serverName);
+                plugin.getProxy().getScheduler().schedule(plugin, () -> checkOffline(serverName, serverId).thenAccept(this), plugin.config.restorePingInterval, TimeUnit.SECONDS);
             }
         };
         // Initial check
-        getPowerStatus(serverName, serverId).thenAccept(callback);
+        checkOffline(serverName, serverId).thenAccept(callback);
 
         return future;
     }
 
     /**
-     * Get the power status of the server.
+     * Check if the server is offline.
      *
-     * @param serverName The name of the server
-     * @param serverId   The Pterodactyl server ID
-     * @return A future that completes with the power status
+     * @param serverName The name of the server to check
+     * @param serverId   The server ID to check
+     * @return A future that completes with true if the server is offline, false otherwise
      */
-    private CompletableFuture<String> getPowerStatus(String serverName, String serverId) {
+    public CompletableFuture<Boolean> checkOffline(String serverName, String serverId) {
         // Create a path
         String path = "/api/client/servers/" + serverId + "/resources";
 
-        HttpClient client = HttpClient.newHttpClient();
-
         // Create a request
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(plugin.config.pterodactylUrl.resolve(path).toString()))
-                .header("Authorization", "Bearer " + plugin.config.pterodactylApiKey)
+        HttpRequest request = requestBuilder(path)
                 .GET()
                 .build();
 
         // Execute request and register a callback
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        return HttpClient.newHttpClient().sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(status -> {
                     int code = status.statusCode();
                     if (code == 200) {
@@ -218,6 +215,7 @@ public class PterodactylController implements PowerController {
                 .exceptionally(e -> {
                     logger.log(Level.WARNING, "Failed to get power status of server: " + serverName, e);
                     throw new CompletionException(e);
-                });
+                })
+                .thenApply(powerStatus -> powerStatus.equals("offline"));
     }
 }
