@@ -1,5 +1,7 @@
 package com.kamesuta.bungeepteropower.power;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.api.PowerSignal;
 
@@ -89,5 +91,41 @@ public class CraftyController implements PowerController {
                 .header("Authorization", "Bearer " + plugin.config.craftyApiKey);
         plugin.config.customHeaders.forEach(builder::header);
         return builder;
+    }
+
+    /**
+     * Check if the server is offline.
+     *
+     * @param serverName The name of the server to check
+     * @param serverId   The server ID to check
+     * @return A future that completes with true if the server is offline, false otherwise
+     */
+    public CompletableFuture<Boolean> checkOffline(String serverName, String serverId) {
+        // Create a path
+        String path = "/api/v2/servers/" + serverId + "/stats";
+
+        // Create a request
+        HttpRequest request = requestBuilder(path)
+                .GET()
+                .build();
+
+        return HttpClient.newHttpClient().sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(status -> {
+                    int code = status.statusCode();
+                    if (code == 200) {
+                        // Parse JSON (data.running)
+                        JsonObject root = JsonParser.parseString(status.body()).getAsJsonObject();
+                        return !root.getAsJsonObject("data").get("running").getAsBoolean();
+                    } else {
+                        String message = "Failed to check offline status of the server: " + serverName + ". Response code: " + code;
+                        logger.warning(message);
+                        logger.info("Request: " + request + ", Response: " + code + " " + status.body());
+                        throw new RuntimeException(message);
+                    }
+                })
+                .exceptionally(e -> {
+                    logger.log(Level.WARNING, "Failed to check offline status of the server: " + serverName, e);
+                    return false;
+                });
     }
 }
