@@ -5,7 +5,7 @@
 
 # Version of the configuration file
 # Do not edit this value until the "/ptero check" asks you to do so.
-version: 2
+version: 3
 
 # Check for updates
 # If true, the plugin will check for updates on startup.

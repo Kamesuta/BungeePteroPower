@@ -267,7 +267,7 @@ public class Config {
      */
     public void validateConfig(CommandSender sender) {
         // Validate the config version
-        if (configVersion != CONFIG_VERSION) {
+        if (configVersion < CONFIG_VERSION) {
             sender.sendMessage(plugin.messages.prefix().append(String.format("Warning: Your config.yml is outdated (required version: %d, your version: %d).", CONFIG_VERSION, configVersion)).create());
             try {
                 // Create/Overwrite config.new.yml
