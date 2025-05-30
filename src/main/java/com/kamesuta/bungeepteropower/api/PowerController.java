@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
  * We are accepting pull requests for adding built-in power controllers!
  * This is the kind of power controller I want, which can start servers locally,
  * or is compatible with management software other than Pterodactyl,
- * such as “Minecraft Server Manager”, “MCSManager”, or “MC Server Soft”.
+ * such as "Minecraft Server Manager", "MCSManager", or "MC Server Soft".
  */
 public interface PowerController {
     /**
@@ -22,23 +22,24 @@ public interface PowerController {
     CompletableFuture<Void> sendPowerSignal(String serverName, String serverId, PowerSignal signalType);
 
     /**
-     * Check if the server is offline.
+     * Check the power status of the server.
      *
      * @param serverName The name of the server to check
      * @param serverId   The server ID to check
-     * @return A future that completes with true if the server is offline, false otherwise
+     * @return A future that completes with the power status of the server
      */
-    default CompletableFuture<Boolean> checkOffline(String serverName, String serverId) {
+    default CompletableFuture<PowerStatus> checkPowerStatus(String serverName, String serverId) {
         throw new UnsupportedOperationException("This power controller does not support checking offline status.");
     }
 
     /**
      * Restore from a backup.
+     * Send a stop signal to the server, wait until the server is offline, and then restore from a backup.
      *
-     * @param serverName The name of the server to restore
-     * @param serverId   The server ID to restore
-     * @param backupName The name of the backup to restore
-     * @return A future that completes when the request is finished
+     * @param serverName The name of the server
+     * @param serverId   The server ID
+     * @param backupName The name of the backup
+     * @return A future that completes when the request to restore from the backup is sent after the server becomes offline
      */
     default CompletableFuture<Void> sendRestoreSignal(String serverName, String serverId, String backupName) {
         throw new UnsupportedOperationException("This power controller does not support restore signal.");

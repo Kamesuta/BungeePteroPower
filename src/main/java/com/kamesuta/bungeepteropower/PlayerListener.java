@@ -2,6 +2,7 @@ package com.kamesuta.bungeepteropower;
 
 import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.api.PowerSignal;
+import com.kamesuta.bungeepteropower.api.PowerStatus;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -87,10 +88,10 @@ public class PlayerListener implements Listener {
         boolean useSynchronousPing = isLogin && plugin.config.useSynchronousPing;
 
         // Ping the target server and check if it is offline
-        CompletableFuture<Void> offlineFuture = checkOffline(targetServer, server)
-                .thenAccept(isOffline -> {
+        CompletableFuture<Void> offlineFuture = checkOnline(targetServer, server)
+                .thenAccept(isOnline -> {
                     // If the server is offline, turn on the server
-                    if (isOffline) {
+                    if (!isOnline) {
                         handleOffline(player, serverName, server, useSynchronousPing, event);
                     }
                 })
@@ -111,13 +112,16 @@ public class PlayerListener implements Listener {
     }
 
     /**
-     * Helper method to switch between BungeeCord ping (callback) and Panel API ping (Future)
-     * and return a CompletableFuture<Boolean>.
+     * Helper method to check if the server is online.
+     * This method switches between two different ways to check the server status:
+     * 1. BungeeCord ping (callback): Uses BungeeCord's built-in ping mechanism
+     * 2. Panel API (Future): Uses the panel's API to check the server status
      *
      * @param targetServer The target server
      * @param server       The server configuration
+     * @return A future that completes with true if the server is online, false otherwise
      */
-    private CompletableFuture<Boolean> checkOffline(
+    private CompletableFuture<Boolean> checkOnline(
             ServerInfo targetServer,
             Config.ServerConfig server
     ) {
@@ -125,14 +129,15 @@ public class PlayerListener implements Listener {
             if ("bungeecord".equals(plugin.config.serverStatusCheckMethod)) {
                 CompletableFuture<Boolean> future = new CompletableFuture<>();
                 targetServer.ping((result, error) -> {
-                    // Consider offline if error is not null
-                    future.complete(error != null);
+                    // Consider online if error is null
+                    future.complete(error == null);
                 });
                 return future;
             } else { // "panel" method
-                // Call checkOffline implemented in PowerController
+                // Call checkPowerStatus implemented in PowerController
                 PowerController powerController = plugin.config.getPowerController();
-                return powerController.checkOffline(targetServer.getName(), server.id);
+                return powerController.checkPowerStatus(targetServer.getName(), server.id)
+                        .thenApply(status -> status == PowerStatus.RUNNING);
             }
         } catch (RuntimeException e) {
             return CompletableFuture.failedFuture(e);

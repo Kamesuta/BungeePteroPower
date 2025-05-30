@@ -2,6 +2,7 @@ package com.kamesuta.bungeepteropower;
 
 import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.api.PowerSignal;
+import com.kamesuta.bungeepteropower.api.PowerStatus;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ServerPing;
@@ -10,7 +11,9 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
+import static com.kamesuta.bungeepteropower.BungeePteroPower.logger;
 import static com.kamesuta.bungeepteropower.BungeePteroPower.plugin;
 
 /**
@@ -154,6 +157,40 @@ public class ServerController {
             }
         };
         serverInfo.ping(callback);
+        return future;
+    }
+
+    /**
+     * Wait until the server reaches the specified power status
+     *
+     * @param serverName   The name of the server
+     * @param serverId     The server ID
+     * @param targetStatus The power status to wait for
+     * @return A future that completes when the server reaches the target status
+     */
+    public static CompletableFuture<Void> waitUntil(String serverName, String serverId, PowerStatus targetStatus) {
+        CompletableFuture<Void> future = new CompletableFuture<Void>().orTimeout(plugin.config.startupJoinTimeout, TimeUnit.SECONDS);
+        // Wait until the server reaches the target status
+        Consumer<PowerStatus> callback = new Consumer<>() {
+            @Override
+            public void accept(PowerStatus status) {
+                // Do nothing if timeout or already completed
+                if (future.isDone()) {
+                    return;
+                }
+                // Complete if the server has reached the target status
+                if (status == targetStatus) {
+                    future.complete(null);
+                    return;
+                }
+                // Otherwise schedule another ping
+                logger.fine("Server is not in target state. Current state: " + status + ", Target state: " + targetStatus + " for server: " + serverName);
+                plugin.getProxy().getScheduler().schedule(plugin, () -> plugin.config.getPowerController().checkPowerStatus(serverName, serverId).thenAccept(this), plugin.config.pingInterval, TimeUnit.SECONDS);
+            }
+        };
+        // Initial check
+        plugin.config.getPowerController().checkPowerStatus(serverName, serverId).thenAccept(callback);
+
         return future;
     }
 

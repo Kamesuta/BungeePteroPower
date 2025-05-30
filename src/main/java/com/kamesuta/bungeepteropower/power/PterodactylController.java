@@ -2,8 +2,10 @@ package com.kamesuta.bungeepteropower.power;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.kamesuta.bungeepteropower.ServerController;
 import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.api.PowerSignal;
+import com.kamesuta.bungeepteropower.api.PowerStatus;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -11,8 +13,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import static com.kamesuta.bungeepteropower.BungeePteroPower.logger;
@@ -83,7 +83,7 @@ public class PterodactylController implements PowerController {
 
         // Wait until the power status becomes offline
         logger.info(String.format("Waiting server to stop: %s (Pterodactyl server ID: %s)", serverName, serverId));
-        return waitUntilOffline(serverName, serverId)
+        return ServerController.waitUntil(serverName, serverId, PowerStatus.OFFLINE)
                 .thenCompose((v) -> {
                     // Restore the backup
                     logger.info(String.format("Successfully stopped server: %s", serverName));
@@ -149,46 +149,14 @@ public class PterodactylController implements PowerController {
     }
 
     /**
-     * Wait until the power status becomes offline.
-     *
-     * @param serverName The name of the server
-     * @param serverId   The Pterodactyl server ID
-     * @return A future that waits until the server becomes offline
-     */
-    private CompletableFuture<Void> waitUntilOffline(String serverName, String serverId) {
-        CompletableFuture<Void> future = new CompletableFuture<Void>().orTimeout(plugin.config.restoreTimeout, TimeUnit.SECONDS);
-        // Wait until the server becomes offline
-        Consumer<Boolean> callback = new Consumer<>() {
-            @Override
-            public void accept(Boolean isOffline) {
-                // Do nothing if timeout or already completed
-                if (future.isDone()) {
-                    return;
-                }
-                // Complete if the server is offline
-                if (isOffline) {
-                    future.complete(null);
-                    return;
-                }
-                // Otherwise schedule another ping
-                logger.fine("Server is still online. Waiting for it to be offline: " + serverName);
-                plugin.getProxy().getScheduler().schedule(plugin, () -> checkOffline(serverName, serverId).thenAccept(this), plugin.config.restorePingInterval, TimeUnit.SECONDS);
-            }
-        };
-        // Initial check
-        checkOffline(serverName, serverId).thenAccept(callback);
-
-        return future;
-    }
-
-    /**
-     * Check if the server is offline.
+     * Check the power status of the server.
      *
      * @param serverName The name of the server to check
      * @param serverId   The server ID to check
-     * @return A future that completes with true if the server is offline, false otherwise
+     * @return A future that completes with the power status of the server
      */
-    public CompletableFuture<Boolean> checkOffline(String serverName, String serverId) {
+    @Override
+    public CompletableFuture<PowerStatus> checkPowerStatus(String serverName, String serverId) {
         // Create a path
         String path = "/api/client/servers/" + serverId + "/resources";
 
@@ -204,7 +172,13 @@ public class PterodactylController implements PowerController {
                     if (code == 200) {
                         // Parse JSON (attributes.current_state)
                         JsonObject root = JsonParser.parseString(status.body()).getAsJsonObject();
-                        return root.getAsJsonObject("attributes").get("current_state").getAsString();
+                        String state = root.getAsJsonObject("attributes").get("current_state").getAsString();
+                        try {
+                            return PowerStatus.valueOf(state.toUpperCase());
+                        } catch (IllegalArgumentException e) {
+                            logger.warning("Unknown server state: " + state + " for server: " + serverName);
+                            return PowerStatus.OFFLINE;
+                        }
                     } else {
                         String message = "Failed to get power status of server: " + serverName + ". Response code: " + code;
                         logger.warning(message);
@@ -215,7 +189,6 @@ public class PterodactylController implements PowerController {
                 .exceptionally(e -> {
                     logger.log(Level.WARNING, "Failed to get power status of server: " + serverName, e);
                     throw new CompletionException(e);
-                })
-                .thenApply(powerStatus -> powerStatus.equals("offline"));
+                });
     }
 }

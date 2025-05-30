@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.api.PowerSignal;
+import com.kamesuta.bungeepteropower.api.PowerStatus;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -94,13 +95,13 @@ public class CraftyController implements PowerController {
     }
 
     /**
-     * Check if the server is offline.
+     * Check the power status of the server.
      *
      * @param serverName The name of the server to check
      * @param serverId   The server ID to check
-     * @return A future that completes with true if the server is offline, false otherwise
+     * @return A future that completes with the power status of the server
      */
-    public CompletableFuture<Boolean> checkOffline(String serverName, String serverId) {
+    public CompletableFuture<PowerStatus> checkPowerStatus(String serverName, String serverId) {
         // Create a path
         String path = "/api/v2/servers/" + serverId + "/stats";
 
@@ -115,17 +116,19 @@ public class CraftyController implements PowerController {
                     if (code == 200) {
                         // Parse JSON (data.running)
                         JsonObject root = JsonParser.parseString(status.body()).getAsJsonObject();
-                        return !root.getAsJsonObject("data").get("running").getAsBoolean();
+                        boolean running = root.getAsJsonObject("data").get("running").getAsBoolean();
+                        // Crafty API doesn't provide detailed status, so we can only determine if it's running or not
+                        return running ? PowerStatus.RUNNING : PowerStatus.OFFLINE;
                     } else {
-                        String message = "Failed to check offline status of the server: " + serverName + ". Response code: " + code;
+                        String message = "Failed to check power status of the server: " + serverName + ". Response code: " + code;
                         logger.warning(message);
                         logger.info("Request: " + request + ", Response: " + code + " " + status.body());
                         throw new RuntimeException(message);
                     }
                 })
                 .exceptionally(e -> {
-                    logger.log(Level.WARNING, "Failed to check offline status of the server: " + serverName, e);
-                    return false;
+                    logger.log(Level.WARNING, "Failed to check power status of the server: " + serverName, e);
+                    return PowerStatus.OFFLINE;
                 });
     }
 }
