@@ -194,4 +194,36 @@ public class ServerController {
         return future;
     }
 
+    /**
+     * Check the server status.
+     * This method switches between two different ways to check the server status:
+     * 1. BungeeCord ping (callback): Uses BungeeCord's built-in ping mechanism
+     * 2. Panel API (Future): Uses the panel's API to check the server status
+     *
+     * @param targetServer The target server
+     * @param server       The server configuration
+     * @return A future that completes with the power status of the server
+     */
+    public static CompletableFuture<PowerStatus> checkPowerStatus(
+            ServerInfo targetServer,
+            Config.ServerConfig server
+    ) {
+        try {
+            if ("bungeecord".equals(plugin.config.serverStatusCheckMethod)) {
+                CompletableFuture<PowerStatus> future = new CompletableFuture<>();
+                targetServer.ping((result, error) -> {
+                    // Consider online if error is null
+                    future.complete(error == null ? PowerStatus.RUNNING : PowerStatus.OFFLINE);
+                });
+                return future;
+            } else { // "panel" method
+                // Call checkPowerStatus implemented in PowerController
+                PowerController powerController = plugin.config.getPowerController();
+                return powerController.checkPowerStatus(targetServer.getName(), server.id);
+            }
+        } catch (RuntimeException e) {
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
 }

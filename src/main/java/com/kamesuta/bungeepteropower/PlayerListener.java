@@ -1,6 +1,5 @@
 package com.kamesuta.bungeepteropower;
 
-import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.api.PowerSignal;
 import com.kamesuta.bungeepteropower.api.PowerStatus;
 import net.md_5.bungee.api.ChatColor;
@@ -88,10 +87,12 @@ public class PlayerListener implements Listener {
         boolean useSynchronousPing = isLogin && plugin.config.useSynchronousPing;
 
         // Ping the target server and check if it is offline
-        CompletableFuture<Void> offlineFuture = checkOnline(targetServer, server)
-                .thenAccept(isOnline -> {
-                    // If the server is offline, turn on the server
-                    if (!isOnline) {
+        CompletableFuture<Void> offlineFuture = ServerController.checkPowerStatus(targetServer, server)
+                .thenAccept(status -> {
+                    // If the server is not running, handle it
+                    if (status == PowerStatus.STARTING) {
+                        handleStarting(player, serverName, useSynchronousPing, event);
+                    } else if (status == PowerStatus.OFFLINE) {
                         handleOffline(player, serverName, server, useSynchronousPing, event);
                     }
                 })
@@ -108,39 +109,43 @@ public class PlayerListener implements Listener {
                 logger.log(Level.WARNING, "Failed to wait for ping: " + serverName, e);
             }
         }
-
     }
 
     /**
-     * Helper method to check if the server is online.
-     * This method switches between two different ways to check the server status:
-     * 1. BungeeCord ping (callback): Uses BungeeCord's built-in ping mechanism
-     * 2. Panel API (Future): Uses the panel's API to check the server status
+     * Handles when a player attempts to connect to a server that is starting.
      *
-     * @param targetServer The target server
-     * @param server       The server configuration
-     * @return A future that completes with true if the server is online, false otherwise
+     * @param player             The player attempting to connect.
+     * @param serverName         The name of the server the player is trying to connect to.
+     * @param useSynchronousPing Whether synchronous ping is enabled to handle custom messages.
+     * @param event              The server connection event triggered by the player.
      */
-    private CompletableFuture<Boolean> checkOnline(
-            ServerInfo targetServer,
-            Config.ServerConfig server
+    private void handleStarting(
+            ProxiedPlayer player,
+            String serverName,
+            boolean useSynchronousPing,
+            ServerConnectEvent event
     ) {
-        try {
-            if ("bungeecord".equals(plugin.config.serverStatusCheckMethod)) {
-                CompletableFuture<Boolean> future = new CompletableFuture<>();
-                targetServer.ping((result, error) -> {
-                    // Consider online if error is null
-                    future.complete(error == null);
-                });
-                return future;
-            } else { // "panel" method
-                // Call checkPowerStatus implemented in PowerController
-                PowerController powerController = plugin.config.getPowerController();
-                return powerController.checkPowerStatus(targetServer.getName(), server.id)
-                        .thenApply(status -> status == PowerStatus.RUNNING);
+        // Permission check
+        if (player.hasPermission("ptero.autostart." + serverName)) {
+            // If synchronous ping is enabled, we can disconnect the player to show a custom message instead of "Could not connect to a default or fallback server".
+            if (useSynchronousPing) {
+                // Disconnect the player to show custom message
+                player.disconnect(new ComponentBuilder(plugin.messages.getMessage("join_autostart_starting_login", serverName)).color(ChatColor.YELLOW).create());
+            } else {
+                // Send title and message
+                player.sendTitle(ProxyServer.getInstance().createTitle()
+                        .title(new ComponentBuilder(plugin.messages.getMessage("join_autostart_starting_title", serverName)).color(ChatColor.YELLOW).create())
+                        .subTitle(new ComponentBuilder(plugin.messages.getMessage("join_autostart_starting_subtitle", serverName)).create())
+                );
             }
-        } catch (RuntimeException e) {
-            return CompletableFuture.failedFuture(e);
+
+            // If synchronous ping is enabled, we can suppress "Could not connect to a default or fallback server" message
+            if (useSynchronousPing) {
+                event.setCancelled(true);
+            }
+        } else {
+            // Send message that the server is starting
+            player.sendMessage(plugin.messages.warning("join_start_starting", serverName));
         }
     }
 
