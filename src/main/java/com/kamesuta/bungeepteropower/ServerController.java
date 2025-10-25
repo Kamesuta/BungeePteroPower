@@ -26,10 +26,15 @@ public class ServerController {
      *
      * @param sender     The command sender
      * @param serverName The name of the server to send the signal
-     * @param server     The server configuration to send the signal to
      * @param signalType The power signal to send
      */
-    public static void sendPowerSignal(CommandSender sender, String serverName, Config.ServerConfig server, PowerSignal signalType) {
+    public static void sendPowerSignal(CommandSender sender, String serverName, PowerSignal signalType) {
+        // Get the server configuration
+        Config.ServerConfig server = plugin.config.getServerConfig(serverName);
+        if (server == null) {
+            return;
+        }
+
         // Get signal
         String signal = signalType.getSignal();
 
@@ -88,7 +93,7 @@ public class ServerController {
             }
 
             // Stop the server if nobody joins after a while
-            stopAfterWhile(sender, serverName, server, signalType);
+            stopAfterWhile(sender, serverName, signalType);
 
         }).exceptionally(e -> {
             sender.sendMessage(plugin.messages.error("server_" + signal + "_failed", serverName));
@@ -102,10 +107,15 @@ public class ServerController {
      *
      * @param sender     The command sender
      * @param serverName The name of the server to stop
-     * @param server     The server configuration to stop
      * @param signalType Is this executed while stopping or starting?
      */
-    public static void stopAfterWhile(CommandSender sender, String serverName, Config.ServerConfig server, PowerSignal signalType) {
+    public static void stopAfterWhile(CommandSender sender, String serverName, PowerSignal signalType) {
+        // Get the server configuration
+        Config.ServerConfig server = plugin.config.getServerConfig(serverName);
+        if (server == null) {
+            return;
+        }
+
         // Get signal
         String signal = signalType.getSignal();
 
@@ -121,7 +131,7 @@ public class ServerController {
         // Stop the server after a while
         plugin.delay.stopAfterWhile(serverName, serverTimeout, () -> {
             // Stop the server
-            sendPowerSignal(sender, serverName, server, PowerSignal.STOP);
+            sendPowerSignal(sender, serverName, PowerSignal.STOP);
 
             // Record statistics
             plugin.statistics.actionCounter.increment(Statistics.ActionCounter.ActionType.STOP_SERVER_NOBODY);
@@ -164,11 +174,10 @@ public class ServerController {
      * Wait until the server reaches the specified power status
      *
      * @param serverName   The name of the server
-     * @param serverId     The server ID
      * @param targetStatus The power status to wait for
      * @return A future that completes when the server reaches the target status
      */
-    public static CompletableFuture<Void> waitUntil(String serverName, String serverId, PowerStatus targetStatus) {
+    public static CompletableFuture<Void> waitUntil(String serverName, PowerStatus targetStatus) {
         CompletableFuture<Void> future = new CompletableFuture<Void>().orTimeout(plugin.config.startupJoinTimeout, TimeUnit.SECONDS);
         // Wait until the server reaches the target status
         Consumer<PowerStatus> callback = new Consumer<>() {
@@ -185,11 +194,11 @@ public class ServerController {
                 }
                 // Otherwise schedule another ping
                 logger.fine("Server is not in target state. Current state: " + status + ", Target state: " + targetStatus + " for server: " + serverName);
-                plugin.getProxy().getScheduler().schedule(plugin, () -> plugin.config.getPowerController().checkPowerStatus(serverName, serverId).thenAccept(this), plugin.config.pingInterval, TimeUnit.SECONDS);
+                plugin.getProxy().getScheduler().schedule(plugin, () -> checkPowerStatus(serverName).thenAccept(this), plugin.config.pingInterval, TimeUnit.SECONDS);
             }
         };
         // Initial check
-        plugin.config.getPowerController().checkPowerStatus(serverName, serverId).thenAccept(callback);
+        checkPowerStatus(serverName).thenAccept(callback);
 
         return future;
     }
@@ -200,16 +209,24 @@ public class ServerController {
      * 1. BungeeCord ping (callback): Uses BungeeCord's built-in ping mechanism
      * 2. Panel API (Future): Uses the panel's API to check the server status
      *
-     * @param targetServer The target server
-     * @param server       The server configuration
+     * @param serverName The name of the server
      * @return A future that completes with the power status of the server
      */
-    public static CompletableFuture<PowerStatus> checkPowerStatus(
-            ServerInfo targetServer,
-            Config.ServerConfig server
-    ) {
+    public static CompletableFuture<PowerStatus> checkPowerStatus(String serverName) {
         try {
+            // Get the server configuration
+            Config.ServerConfig server = plugin.config.getServerConfig(serverName);
+            if (server == null) {
+                return CompletableFuture.failedFuture(new IllegalArgumentException("Server not found: " + serverName));
+            }
+
             if ("bungeecord".equals(plugin.config.serverStatusCheckMethod)) {
+                // Get the server info
+                ServerInfo targetServer = plugin.getProxy().getServerInfo(serverName);
+                if (targetServer == null) {
+                    return CompletableFuture.failedFuture(new IllegalArgumentException("ServerInfo not found: " + serverName));
+                }
+
                 CompletableFuture<PowerStatus> future = new CompletableFuture<>();
                 targetServer.ping((result, error) -> {
                     // Consider online if error is null
@@ -219,7 +236,7 @@ public class ServerController {
             } else { // "panel" method
                 // Call checkPowerStatus implemented in PowerController
                 PowerController powerController = plugin.config.getPowerController();
-                return powerController.checkPowerStatus(targetServer.getName(), server.id);
+                return powerController.checkPowerStatus(serverName, server.id);
             }
         } catch (RuntimeException e) {
             return CompletableFuture.failedFuture(e);

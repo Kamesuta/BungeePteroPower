@@ -91,7 +91,7 @@ public class PteroCommand extends Command implements TabExecutor {
                 }
 
                 // Send signal and auto join
-                ServerController.sendPowerSignal(sender, serverName, server, signal);
+                ServerController.sendPowerSignal(sender, serverName, signal);
 
                 // Record statistics
                 if (signal == PowerSignal.START) {

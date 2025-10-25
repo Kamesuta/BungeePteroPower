@@ -87,7 +87,7 @@ public class PlayerListener implements Listener {
         boolean useSynchronousPing = isLogin && plugin.config.useSynchronousPing;
 
         // Ping the target server and check if it is offline
-        CompletableFuture<Void> offlineFuture = ServerController.checkPowerStatus(targetServer, server)
+        CompletableFuture<Void> offlineFuture = ServerController.checkPowerStatus(serverName)
                 .thenAccept(status -> {
                     // If the server is not running, handle it
                     if (status == PowerStatus.STARTING) {
@@ -180,7 +180,7 @@ public class PlayerListener implements Listener {
             }
 
             // Send power signal
-            ServerController.sendPowerSignal(player, serverName, server, PowerSignal.START);
+            ServerController.sendPowerSignal(player, serverName, PowerSignal.START);
 
             // Record statistics
             plugin.statistics.actionCounter.increment(Statistics.ActionCounter.ActionType.START_SERVER_AUTOJOIN);
@@ -260,7 +260,7 @@ public class PlayerListener implements Listener {
         }
 
         // Stop the server when everyone leaves
-        ServerController.stopAfterWhile(player, serverName, server, PowerSignal.STOP);
+        ServerController.stopAfterWhile(player, serverName, PowerSignal.STOP);
     }
 
 }

@@ -83,7 +83,7 @@ public class PterodactylController implements PowerController {
 
         // Wait until the power status becomes offline
         logger.info(String.format("Waiting server to stop: %s (Pterodactyl server ID: %s)", serverName, serverId));
-        return ServerController.waitUntil(serverName, serverId, PowerStatus.OFFLINE)
+        return ServerController.waitUntil(serverName, PowerStatus.OFFLINE)
                 .thenCompose((v) -> {
                     // Restore the backup
                     logger.info(String.format("Successfully stopped server: %s", serverName));
