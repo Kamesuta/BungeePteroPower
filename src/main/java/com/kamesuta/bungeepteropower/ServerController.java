@@ -3,9 +3,7 @@ package com.kamesuta.bungeepteropower;
 import com.kamesuta.bungeepteropower.api.PowerController;
 import com.kamesuta.bungeepteropower.api.PowerSignal;
 import com.kamesuta.bungeepteropower.api.PowerStatus;
-import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -62,14 +60,13 @@ public class ServerController {
                 // If auto join is configured, join the server when it is started
                 sender.sendMessage(plugin.messages.success("server_startup_join", serverName));
 
-                // Get the server info
-                ServerInfo serverInfo = plugin.getProxy().getServerInfo(serverName);
-                // ServerInfo is null if the server is not found on bungeecord config
-                if (serverInfo != null) {
-                    // Wait until the server is started
-                    onceStarted(serverInfo).thenRun(() -> {
-                        // Move player to the started server
-                        ProxiedPlayer player = (ProxiedPlayer) sender;
+                // Wait until the server is started
+                waitUntil(serverName, PowerStatus.RUNNING).thenRun(() -> {
+                    // Move player to the started server
+                    ProxiedPlayer player = (ProxiedPlayer) sender;
+                    // Get the server info
+                    ServerInfo serverInfo = plugin.getProxy().getServerInfo(serverName);
+                    if (serverInfo != null) {
                         if (plugin.config.joinDelay > 0) {
                             // Delay the join
                             plugin.getProxy().getScheduler().schedule(plugin, () -> player.connect(serverInfo), plugin.config.joinDelay, TimeUnit.SECONDS);
@@ -81,11 +78,11 @@ public class ServerController {
                             // Send a message
                             player.sendMessage(plugin.messages.success("server_startup_join_move", serverName));
                         }
-                    }).exceptionally((Throwable e) -> {
-                        sender.sendMessage(plugin.messages.warning("server_startup_join_failed", serverName));
-                        return null;
-                    });
-                }
+                    }
+                }).exceptionally((Throwable e) -> {
+                    sender.sendMessage(plugin.messages.warning("server_startup_join_failed", serverName));
+                    return null;
+                });
 
             } else {
                 // Otherwise, just send a message
@@ -140,34 +137,6 @@ public class ServerController {
 
         // Send message
         sender.sendMessage(plugin.messages.warning("server_" + signal + "_warning", serverName, serverTimeout));
-    }
-
-    /**
-     * Wait until the server is started
-     *
-     * @param serverInfo The server to wait for
-     * @return A future that completes when the server is started
-     */
-    private static CompletableFuture<Void> onceStarted(ServerInfo serverInfo) {
-        CompletableFuture<Void> future = new CompletableFuture<Void>().orTimeout(plugin.config.startupJoinTimeout, TimeUnit.SECONDS);
-        Callback<ServerPing> callback = new Callback<>() {
-            @Override
-            public void done(ServerPing serverPing, Throwable throwable) {
-                // Do nothing if timeout or already completed
-                if (future.isDone()) {
-                    return;
-                }
-                // Complete if the ping was successful
-                if (throwable == null && serverPing != null) {
-                    future.complete(null);
-                    return;
-                }
-                // Otherwise schedule another ping
-                plugin.getProxy().getScheduler().schedule(plugin, () -> serverInfo.ping(this), plugin.config.pingInterval, TimeUnit.SECONDS);
-            }
-        };
-        serverInfo.ping(callback);
-        return future;
     }
 
     /**
