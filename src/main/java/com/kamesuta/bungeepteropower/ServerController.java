@@ -114,16 +114,17 @@ public class ServerController {
         }
 
         // Get signal
-        String signal = signalType.getSignal();
+        final String signal = signalType.getSignal();
 
         // Get the auto stop time
-        int serverTimeout = server.timeout;
-        if (serverTimeout == 0) return;
+        int timeout = server.timeout;
+        if (timeout == 0) return;
 
         // When on starting, use the start timeout additionally
         if (signalType == PowerSignal.START) {
-            serverTimeout += plugin.config.startTimeout;
+            timeout += plugin.config.startTimeout;
         }
+        final int serverTimeout = timeout;
 
         // Stop the server after a while
         plugin.delay.stopAfterWhile(serverName, serverTimeout, () -> {
@@ -135,8 +136,16 @@ public class ServerController {
             plugin.statistics.startReasonRecorder.recordStop(serverName);
         });
 
-        // Send message
-        sender.sendMessage(plugin.messages.warning("server_" + signal + "_warning", serverName, serverTimeout));
+        // Check if the server is actually running before sending the warning message
+        checkPowerStatus(serverName).thenAccept(status -> {
+            // Only send message if the server is running
+            if (status != PowerStatus.OFFLINE) {
+                sender.sendMessage(plugin.messages.warning("server_" + signal + "_warning", serverName, serverTimeout));
+            }
+        }).exceptionally(e -> {
+            logger.warning("Failed to check server status for stopAfterWhile message: " + serverName);
+            return null;
+        });
     }
 
     /**
