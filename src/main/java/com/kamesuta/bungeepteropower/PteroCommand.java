@@ -62,7 +62,11 @@ public class PteroCommand extends Command implements TabExecutor {
             case "stop": {
                 // args[1] is the server name
                 if (args.length < 2) {
-                    sender.sendMessage(plugin.messages.warning("command_" + subCommand + "_usage"));
+                    if ("start".equals(subCommand)) {
+                        sender.sendMessage(plugin.messages.warning("command_start_usage"));
+                    } else {
+                        sender.sendMessage(plugin.messages.warning("command_stop_usage"));
+                    }
                     return;
                 }
                 String serverName = args[1];

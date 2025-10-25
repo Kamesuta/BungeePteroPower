@@ -33,9 +33,6 @@ public class ServerController {
             return;
         }
 
-        // Get signal
-        String signal = signalType.getSignal();
-
         // Send power signal
         CompletableFuture<Void> future;
         PowerController powerController = plugin.config.getPowerController();
@@ -93,7 +90,11 @@ public class ServerController {
             stopAfterWhile(sender, serverName, signalType);
 
         }).exceptionally(e -> {
-            sender.sendMessage(plugin.messages.error("server_" + signal + "_failed", serverName));
+            if (signalType == PowerSignal.START) {
+                sender.sendMessage(plugin.messages.error("server_start_failed", serverName));
+            } else if (signalType == PowerSignal.STOP) {
+                sender.sendMessage(plugin.messages.error("server_stop_failed", serverName));
+            }
             return null;
 
         });
@@ -112,9 +113,6 @@ public class ServerController {
         if (server == null) {
             return;
         }
-
-        // Get signal
-        final String signal = signalType.getSignal();
 
         // Get the auto stop time
         int timeout = server.timeout;
@@ -140,7 +138,11 @@ public class ServerController {
         checkPowerStatus(serverName).thenAccept(status -> {
             // Only send message if the server is running
             if (status != PowerStatus.OFFLINE) {
-                sender.sendMessage(plugin.messages.warning("server_" + signal + "_warning", serverName, serverTimeout));
+                if (signalType == PowerSignal.START) {
+                    sender.sendMessage(plugin.messages.warning("server_start_warning", serverName, serverTimeout));
+                } else if (signalType == PowerSignal.STOP) {
+                    sender.sendMessage(plugin.messages.warning("server_stop_warning", serverName, serverTimeout));
+                }
             }
         }).exceptionally(e -> {
             logger.warning("Failed to check server status for stopAfterWhile message: " + serverName);
